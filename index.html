@@ -1,0 +1,141 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Currency converter for Byteball</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" crossorigin="anonymous">
+	<style>
+	body {
+		display: table;
+		position: absolute;
+		height: 100%;
+		width: 100%;
+	}
+
+	.jumbotron {
+		display: table-cell !important;
+		vertical-align: middle;
+	}
+	</style>
+	<script>
+	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+	})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+	ga('create', 'UA-15428727-5', 'auto');
+	ga('send', 'pageview');
+	</script>
+</head>
+<body>
+	<div class="jumbotron d-flex align-items-center">
+		<div class="container-fluid text-center">
+			<div class="row">
+				<div class="input-group input-group-md mb-3 col-lg-2">
+					<input class="form-control" type="number" id="amount_to_send" min="0" placeholder="Amount to send"/>
+					<div class="input-group-append">
+						<label class="input-group-text" id="amount_to_send_label" for="amount_to_send">?</label>
+					</div>
+				</div>
+				<div class="input-group input-group-md mb-3 col-lg-3">
+					<div class="input-group-prepend">
+						<label class="input-group-text" for="currency_rate" title="close and re-open tab to refresh rates">Currency</label>
+					</div>
+					<select class="form-control" id="currency_rate" title="close and re-open tab to refresh rates"><option value="">-- choose currency --</option></select>
+				</div>
+				<div class="input-group input-group-md mb-3 col-lg-4">
+					<input class="form-control" type="text" id="bb_address" placeholder="Byteball address"/>
+					<div class="input-group-append">
+						<label class="input-group-text" for="bb_address">Address</label>
+					</div>
+				</div>
+				<div class="input-group input-group-md mb-3 col-lg-3">
+					<a class="btn btn-primary col-lg-12" role="button" id="send-button" href="https://byteball.org/#download">send with Byteball wallet</a>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-12" id="conversion"></div>
+			</div>
+		</div>
+	</div>
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" crossorigin="anonymous"></script>
+	<script type="text/javascript">
+	$(document).ready(function() {
+		if (typeof window.sessionStorage !== 'undefined') {
+			var url = 'https://min-api.cryptocompare.com/data/price?fsym=GBYTE&tsyms=USD,EUR,GBP,BTC,ETH,GOLD,AUD,BRL,CAD,CHF,CNY,HKD,HUF,INR,JPY,KRW,MXN,NZD,PHP,PLN,RON,RUB,SGD,VEF';
+			var cache_key = utf8_to_b64(url);
+			var cached_rates = JSON.parse(sessionStorage.getItem(cache_key));
+			if (cached_rates) {
+				rates = cached_rates;
+				drawRates(rates);
+				if (typeof ga === 'function') {
+					ga('send', 'event', 'CryptoCompare', 'cached-rates');
+				}
+			}
+			else {
+				$.get(url, function(response) {
+					rates = response;
+					drawRates(rates);
+					sessionStorage.setItem(cache_key, JSON.stringify(response));
+					if (typeof ga === 'function') {
+						ga('send', 'event', 'CryptoCompare', 'new-rates');
+					}
+				});
+			}
+		}
+		$('#amount_to_send, #currency_rate, #bb_address').on('change', function(e) {
+			updateAmount();
+		});
+		$('#send-button').on('click', function(e) {
+			if (!updateAmount()) {
+				e.preventDefault();
+				if (typeof ga === 'function') {
+					ga('send', 'event', 'send-button', 'fill-fields');
+				}
+				alert('Please fill all fields!');
+				return false;
+			}
+			if (typeof ga === 'function') {
+				ga('send', 'event', 'send-button', 'success', $('#currency_rate option:selected').attr('rel'));
+			}
+		});
+		function updateAmount() {
+			var amount_to_send = parseFloat($('#amount_to_send').val());
+			var currency_rate = parseFloat($('#currency_rate').val());
+			var bb_address = $('#bb_address').val();
+			if (currency_rate) {
+				$('#amount_to_send_label').html($('#currency_rate option:selected').attr('rel'));
+				if (amount_to_send) {
+					$('#conversion').html('');
+					$('#conversion').append('<div>'+ (amount_to_send/currency_rate).toFixed(9) +' GBYTE</div>');
+					$('#conversion').append('<div>'+ (amount_to_send/currency_rate*1e3).toFixed(6) +' MBYTE</div>');
+					$('#conversion').append('<div>'+ (amount_to_send/currency_rate*1e6).toFixed(4) +' KBYTE</div>');
+					$('#conversion').append('<div>'+ (amount_to_send/currency_rate*1e9).toFixed(0) +' BYTE</div>');
+				}
+			}
+			else {
+				$('#amount_to_send_label').html('?');
+			}
+			if (!amount_to_send || !currency_rate || !bb_address) {
+				return false;
+			}
+			var bb_amount = (amount_to_send/currency_rate*1e9).toFixed(0);
+			$('#send-button').attr('href', 'byteball:'+ bb_address +'?amount='+ bb_amount);
+			return true;
+		}
+		function drawRates(rates) {
+			for (i in rates) {
+				$('#currency_rate').append('<option value="'+ rates[i] +'" rel="'+ i +'">'+ i +' ('+ rates[i] +' = GBYTE)</option>');
+			}
+		}
+		function utf8_to_b64( str ) {
+			return window.btoa(encodeURIComponent( escape( str )));
+		}
+		function b64_to_utf8( str ) {
+			return unescape(decodeURIComponent(window.atob( str )));
+		}
+	});
+	</script>
+</body>
+</html>
