@@ -110,7 +110,7 @@
 					$('#conversion').html('');
 					$('#conversion').append('<div>'+ (amount_to_send/currency_rate).toFixed(9) +' GBYTE</div>');
 					$('#conversion').append('<div>'+ (amount_to_send/currency_rate*1e3).toFixed(6) +' MBYTE</div>');
-					$('#conversion').append('<div>'+ (amount_to_send/currency_rate*1e6).toFixed(4) +' KBYTE</div>');
+					$('#conversion').append('<div>'+ (amount_to_send/currency_rate*1e6).toFixed(3) +' KBYTE</div>');
 					$('#conversion').append('<div>'+ (amount_to_send/currency_rate*1e9).toFixed(0) +' BYTE</div>');
 				}
 			}
