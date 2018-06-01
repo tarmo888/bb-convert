@@ -70,28 +70,6 @@
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" crossorigin="anonymous"></script>
 	<script type="text/javascript">
 	$(document).ready(function() {
-		if (typeof window.sessionStorage !== 'undefined') {
-			var url = 'https://min-api.cryptocompare.com/data/price?fsym=GBYTE&tsyms=USD,EUR,GBP,BTC,ETH,GOLD,AUD,BRL,CAD,CHF,CNY,HKD,HUF,INR,JPY,KRW,MXN,NZD,PHP,PLN,RON,RUB,SGD,VEF';
-			var cache_key = utf8_to_b64(url);
-			var cached_rates = JSON.parse(sessionStorage.getItem(cache_key));
-			if (cached_rates) {
-				rates = cached_rates;
-				drawRates(rates);
-				if (typeof ga === 'function') {
-					ga('send', 'event', 'CryptoCompare', 'cached-rates');
-				}
-			}
-			else {
-				$.get(url, function(response) {
-					rates = response;
-					drawRates(rates);
-					sessionStorage.setItem(cache_key, JSON.stringify(response));
-					if (typeof ga === 'function') {
-						ga('send', 'event', 'CryptoCompare', 'new-rates');
-					}
-				});
-			}
-		}
 		$('#amount_to_send, #currency_rate, #bb_address').on('change', function(e) {
 			updateAmount();
 		});
@@ -126,6 +104,36 @@
 				ga('send', 'event', 'donate-button', 'success', $('#currency_rate option:selected').attr('rel'));
 			}
 		});
+		var url = 'https://min-api.cryptocompare.com/data/price?fsym=GBYTE&tsyms=USD,EUR,GBP,BTC,ETH,GOLD,AUD,BRL,CAD,CHF,CNY,HKD,HUF,INR,JPY,KRW,MXN,NZD,PHP,PLN,RON,RUB,SGD,VEF';
+		var cache_key = utf8_to_b64(url);
+		var settings = {'selected_language': ''};
+		if (typeof window.localStorage !== 'undefined') {
+			settings = JSON.parse(localStorage.getItem(cache_key)) || settings;
+			$('#currency_rate').on('change', function(e) {
+				settings.selected_language = $('#currency_rate option:selected').attr('rel');
+				localStorage.setItem(cache_key, JSON.stringify(settings));
+			});
+		}
+		if (typeof window.sessionStorage !== 'undefined') {
+			var cached_rates = JSON.parse(sessionStorage.getItem(cache_key));
+			if (cached_rates) {
+				rates = cached_rates;
+				drawRates(rates);
+				if (typeof ga === 'function') {
+					ga('send', 'event', 'CryptoCompare', 'cached-rates');
+				}
+			}
+			else {
+				$.get(url, function(response) {
+					rates = response;
+					drawRates(rates);
+					sessionStorage.setItem(cache_key, JSON.stringify(response));
+					if (typeof ga === 'function') {
+						ga('send', 'event', 'CryptoCompare', 'new-rates');
+					}
+				});
+			}
+		}
 		function updateAmount() {
 			var amount_to_send = parseFloat($('#amount_to_send').val());
 			var currency_rate = parseFloat($('#currency_rate').val());
@@ -153,6 +161,11 @@
 		function drawRates(rates) {
 			for (i in rates) {
 				$('#currency_rate').append('<option value="'+ rates[i] +'" rel="'+ i +'">'+ i +' ('+ rates[i] +' = GBYTE)</option>');
+			}
+			if (settings.selected_language && $("#currency_rate option[rel='"+ settings.selected_language +"']").length) {
+				$("#currency_rate option").removeAttr("selected");
+				$("#currency_rate option[rel='"+ settings.selected_language +"']").attr("selected", "selected");
+				$("#currency_rate").trigger("change");
 			}
 		}
 		function utf8_to_b64( str ) {
