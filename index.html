@@ -17,6 +17,13 @@
 		display: table-cell !important;
 		vertical-align: middle;
 	}
+	.sticky-footer {
+		position: absolute;
+		left: 0;
+		bottom: 0;
+		width: 100%;
+		padding: 10px;
+	}
 	</style>
 	<script>
 	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -41,7 +48,7 @@
 					<div class="input-group-prepend">
 						<label class="input-group-text" for="currency_rate" title="close and re-open tab to refresh rates">Currency</label>
 					</div>
-					<select class="form-control" id="currency_rate" title="close and re-open tab to refresh rates"><option value="">-- choose currency --</option></select>
+					<select class="form-control" id="currency_rate" title="close and re-open tab to refresh rates"><option value="" rel="default">-- choose currency --</option></select>
 				</div>
 				<div class="input-group input-group-md mb-3 col-lg-4">
 					<input class="form-control" type="text" id="bb_address" placeholder="Byteball address"/>
@@ -58,6 +65,7 @@
 			</div>
 		</div>
 	</div>
+	<div class="sticky-footer text-center"><a id="donate" href="#">donate $5 to author with bytes</a></div>
 	<script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" crossorigin="anonymous"></script>
 	<script type="text/javascript">
@@ -98,6 +106,24 @@
 			}
 			if (typeof ga === 'function') {
 				ga('send', 'event', 'send-button', 'success', $('#currency_rate option:selected').attr('rel'));
+			}
+		});
+		$('#donate').on('click', function(e) {
+			$('#amount_to_send').val(5);
+			$("#currency_rate option").removeAttr("selected");
+			$("#currency_rate option[rel='USD']").attr("selected", "selected");
+			$('#bb_address').val('NTYO4ZKPRBPXW6WY2QUMJBPNDLOGX5OJ');
+			if (!updateAmount()) {
+				e.preventDefault();
+				if (typeof ga === 'function') {
+					ga('send', 'event', 'donate-button', 'fill-fields');
+				}
+				alert('Please fill all fields!');
+				return false;
+			}
+			$('#donate').attr('href', $('#send-button').attr('href'));
+			if (typeof ga === 'function') {
+				ga('send', 'event', 'donate-button', 'success', $('#currency_rate option:selected').attr('rel'));
 			}
 		});
 		function updateAmount() {
