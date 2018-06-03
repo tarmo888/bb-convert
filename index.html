@@ -48,7 +48,7 @@
 					<div class="input-group-prepend">
 						<label class="input-group-text" for="currency_rate" title="close and re-open tab to refresh rates">Currency</label>
 					</div>
-					<select class="form-control" id="currency_rate" title="close and re-open tab to refresh rates"><option value="" rel="default">-- choose currency --</option></select>
+					<select class="form-control" id="currency_rate" title="close and re-open tab to refresh rates"><option value="0" rel="">-- choose currency --</option></select>
 				</div>
 				<div class="input-group input-group-md mb-3 col-lg-4">
 					<input class="form-control" type="text" id="bb_address" placeholder="Byteball address"/>
@@ -65,15 +65,19 @@
 			</div>
 		</div>
 	</div>
-	<div class="sticky-footer text-center"><a id="donate" href="#">donate $5 to author of this tool</a></div>
+	<div class="sticky-footer text-center"><a id="donate" href="https://github.com/tarmo888/bb-convert">donate $5 to author of this tool</a></div>
 	<script src="https://code.jquery.com/jquery-3.2.1.min.js" crossorigin="anonymous"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" crossorigin="anonymous"></script>
 	<script type="text/javascript">
 	$(document).ready(function() {
+		// updates URL fragment and re-calculates Byte amounts
 		$('#amount_to_send, #currency_rate, #bb_address').on('change', function(e) {
+			updateUrlFragment();
 			updateAmount();
 		});
+		// regular send button
 		$('#send-button').on('click', function(e) {
+			updateUrlFragment();
 			if (!updateAmount()) {
 				e.preventDefault();
 				if (typeof ga === 'function') {
@@ -85,12 +89,15 @@
 			if (typeof ga === 'function') {
 				ga('send', 'event', 'send-button', 'success', $('#currency_rate option:selected').attr('rel'));
 			}
+			// executes here user click on Byteball link
 		});
+		// donate button with pre-filled inputs
 		$('#donate').on('click', function(e) {
 			$('#amount_to_send').val(5);
 			$("#currency_rate option").removeAttr("selected");
 			$("#currency_rate option[rel='USD']").attr("selected", "selected");
 			$('#bb_address').val('NTYO4ZKPRBPXW6WY2QUMJBPNDLOGX5OJ');
+			updateUrlFragment();
 			if (!updateAmount()) {
 				e.preventDefault();
 				if (typeof ga === 'function') {
@@ -99,22 +106,27 @@
 				alert('Please fill all fields!');
 				return false;
 			}
+			// copies a link from send button to donate button
 			$('#donate').attr('href', $('#send-button').attr('href'));
 			if (typeof ga === 'function') {
 				ga('send', 'event', 'donate-button', 'success', $('#currency_rate option:selected').attr('rel'));
 			}
+			// executes here user click on Byteball link
 		});
+		// all cryptocompare base currencies
 		var url = 'https://min-api.cryptocompare.com/data/price?fsym=GBYTE&tsyms=USD,EUR,GBP,BTC,ETH,GOLD,AUD,BRL,CAD,CHF,CNY,HKD,HUF,INR,JPY,KRW,MXN,NZD,PHP,PLN,RON,RUB,SGD,VEF';
 		var cache_key = utf8_to_b64(url);
-		var settings = {'selected_language': ''};
+		var settings = {'selected_currency': ''};
 		if (typeof window.localStorage !== 'undefined') {
+			// saves selected currency in local storage for longer
 			settings = JSON.parse(localStorage.getItem(cache_key)) || settings;
 			$('#currency_rate').on('change', function(e) {
-				settings.selected_language = $('#currency_rate option:selected').attr('rel');
+				settings.selected_currency = $('#currency_rate option:selected').attr('rel');
 				localStorage.setItem(cache_key, JSON.stringify(settings));
 			});
 		}
 		if (typeof window.sessionStorage !== 'undefined') {
+			// keeps cached in session storage for reloading the page, clears cache on closing the tab
 			var cached_rates = JSON.parse(sessionStorage.getItem(cache_key));
 			if (cached_rates) {
 				rates = cached_rates;
@@ -134,6 +146,7 @@
 				});
 			}
 		}
+		// calculates Byte amounts and replaces link on send button
 		function updateAmount() {
 			var amount_to_send = parseFloat($('#amount_to_send').val());
 			var currency_rate = parseFloat($('#currency_rate').val());
@@ -155,19 +168,60 @@
 				return false;
 			}
 			var bb_amount = (amount_to_send/currency_rate*1e9).toFixed(0);
+			// replaces a link on send button with Byteball link
 			$('#send-button').attr('href', 'byteball:'+ bb_address +'?amount='+ bb_amount);
 			return true;
 		}
+		// updates URL fragment based on input values
+		function updateUrlFragment() {
+			if (typeof history.replaceState !== 'undefined') {
+				if ( parseFloat($('#amount_to_send').val()) || $('#currency_rate option:selected').attr('rel') || $('#bb_address').val() ) {
+					var fragment = '#amount='+ ($('#amount_to_send').val() ? parseFloat($('#amount_to_send').val()) : '') +'&currency='+ $('#currency_rate option:selected').attr('rel') + '&address='+ $('#bb_address').val();
+					history.replaceState(null, null, fragment);
+				}
+				else {
+					history.replaceState(null, null, '#');
+				}
+			}
+		}
+		// fills currency dropdown and pre-fills inputs
 		function drawRates(rates) {
+			// currency rates loop
 			for (i in rates) {
 				$('#currency_rate').append('<option value="'+ rates[i] +'" rel="'+ i +'">'+ i +' ('+ rates[i] +' = GBYTE)</option>');
 			}
-			if (settings.selected_language && $("#currency_rate option[rel='"+ settings.selected_language +"']").length) {
+			var params = parseParams(window.location.hash);
+			// pre-fill amount from URL fragment
+			if (params.amount) {
+				$('#amount_to_send').val(parseInt(params.amount));
+				$("#amount_to_send").trigger("change");
+			}
+			if (params.currency) {
+				settings.selected_currency = params.currency;
+			}
+			// pre-select currency from dropdown (either from last use or from URL fragment)
+			if (settings.selected_currency && $("#currency_rate option[rel='"+ settings.selected_currency +"']").length) {
 				$("#currency_rate option").removeAttr("selected");
-				$("#currency_rate option[rel='"+ settings.selected_language +"']").attr("selected", "selected");
+				$("#currency_rate option[rel='"+ settings.selected_currency +"']").attr("selected", "selected");
 				$("#currency_rate").trigger("change");
 			}
+			// pre-fill address from URL fragment
+			if (params.address) {
+				$('#bb_address').val(params.address);
+				$("#bb_address").trigger("change");
+			}
 		}
+		// for parsing windows.location.search or windows.location.hash
+		function parseParams(params) {
+			var hash = params.substring(1);
+			var param_list = {}
+			$.each(hash.split('&') , function( key, value ) {
+				var temp = value.split('=');
+				param_list[temp[0]] = temp[1];
+			});
+			return param_list;
+		}
+		// for making unique cache key
 		function utf8_to_b64( str ) {
 			return window.btoa(encodeURIComponent( escape( str )));
 		}
