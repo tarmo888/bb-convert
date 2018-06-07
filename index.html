@@ -87,8 +87,13 @@
 	<script src="launch_uri/launch_uri.js?v2"></script>
 	<script type="text/javascript">
 	$(document).ready(function() {
-		// updates URL fragment and re-calculates Byte amounts
-		$('#amount_to_send, #currency_rate, #bb_address').on('change', function(e) {
+		// update when amount or address typed in or pasted in
+		$('#amount_to_send, #bb_address').on('keyup', function(e) {
+			updateUrlFragment();
+			updateAmount();
+		});
+		// update when amount increased with native controls or currency dropdown value change
+		$('#amount_to_send, #currency_rate').on('change', function(e) {
 			updateUrlFragment();
 			updateAmount();
 		});
@@ -214,8 +219,12 @@
 					$('#conversion').append('<div>'+ (amount_to_send/currency_rate*1e6).toFixed(3) +' KBYTE</div>');
 					$('#conversion').append('<div>'+ (amount_to_send/currency_rate*1e9).toFixed(0) +' BYTE</div>');
 				}
+				else {
+					$('#conversion').html('');
+				}
 			}
 			else {
+				$('#conversion').html('');
 				$('#amount_to_send_label').html('?');
 			}
 			if (!amount_to_send || !currency_rate || !bb_address) {
