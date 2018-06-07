@@ -93,7 +93,7 @@
 			updateAmount();
 		});
 		// update when amount increased with native controls or currency dropdown value change
-		$('#amount_to_send, #currency_rate').on('change', function(e) {
+		$('#amount_to_send, #currency_rate, #bb_address').on('change', function(e) {
 			updateUrlFragment();
 			updateAmount();
 		});
