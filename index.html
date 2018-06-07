@@ -161,6 +161,10 @@
 			}
 		});
 		$('#conversion').on('click', '#qr-opener', function(e) {
+			e.preventDefault();
+			if (typeof ga === 'function') {
+				ga('send', 'event', 'QR-code', 'open');
+			}
 			$('#qr-modal .modal-body').html('').qrcode({width: 512, height: 512, text: $(e.target).attr('href')});
 		});
 		// all cryptocompare base currencies
