@@ -25,6 +25,11 @@
 		width: 100%;
 		padding: 10px;
 	}
+	.modal-body canvas {
+		width: 100%;
+		height: 100%;
+		padding: 25px;
+	}
 	</style>
 	<script>
 	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -66,8 +71,19 @@
 			</div>
 		</div>
 	</div>
+	<!-- Donation link -->
 	<div class="sticky-footer text-center"><a id="donate" href="https://github.com/tarmo888/bb-convert">donate $5 to author of this tool</a></div>
+	<!-- QR code modal -->
+	<div class="modal" id="qr-modal">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-body text-center"></div>
+			</div>
+		</div>
+	</div>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha256-xaF9RpdtRxzwYMWg4ldJoyPWqyDPCRD0Cv7YEEe6Ie8=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js" integrity="sha256-9MzwK2kJKBmsJFdccXoIDDtsbWFh8bjYK/C7UjB1Ay0=" crossorigin="anonymous"></script>
 	<script src="launch_uri/launch_uri.js?v2"></script>
 	<script type="text/javascript">
 	$(document).ready(function() {
@@ -82,6 +98,13 @@
 			updateUrlFragment();
 			var launch_uri = false;
 			if (launch_uri = updateAmount()) {
+				if ( !isValidAddress($('#bb_address').val()) ) {
+					if (typeof ga === 'function') {
+						ga('send', 'event', 'send-button', 'invalid', $('#currency_rate option:selected').attr('rel'));
+					}
+					alert('Please check the address, it\'s not valid!');
+					return false;
+				}
 				launchUri(launch_uri, function () {
 					if (typeof ga === 'function') {
 						ga('send', 'event', 'send-button', 'success', $('#currency_rate option:selected').attr('rel'));
@@ -136,6 +159,9 @@
 				}
 				alert('USD currency not loaded!');
 			}
+		});
+		$('#conversion').on('click', '#qr-opener', function(e) {
+			$('#qr-modal .modal-body').html('').qrcode({width: 512, height: 512, text: $(e.target).attr('href')});
 		});
 		// all cryptocompare base currencies
 		var url = 'https://min-api.cryptocompare.com/data/price?fsym=GBYTE&tsyms=USD,EUR,GBP,BTC,ETH,GOLD,AUD,BRL,CAD,CHF,CNY,HKD,HUF,INR,JPY,KRW,MXN,NZD,PHP,PLN,RON,RUB,SGD,VEF';
@@ -193,12 +219,15 @@
 			}
 			var bb_amount = (amount_to_send/currency_rate*1e9).toFixed(0);
 			var params = parseParams(window.location.hash);
+			var launch_uri = 'byteball:'+ bb_address +'?amount='+ bb_amount;
 			if (params.testnet) {
-				return 'byteball-tn:'+ bb_address +'?amount='+ bb_amount;
+				launch_uri = 'byteball-tn:'+ bb_address +'?amount='+ bb_amount;
 			}
-			else {
-				return 'byteball:'+ bb_address +'?amount='+ bb_amount;
+			if ( isValidAddress(bb_address) ) {
+				$('#conversion').append('<div class="mt-2"><a id="qr-opener" href="'+ launch_uri +'" data-toggle="modal" data-target="#qr-modal">QR code for mobile wallet</a></div>');
 			}
+
+			return launch_uri;
 		}
 		// updates URL fragment based on input values
 		function updateUrlFragment() {
@@ -256,6 +285,10 @@
 		}
 		function b64_to_utf8( str ) {
 			return unescape(decodeURIComponent(window.atob( str )));
+		}
+		// simple validation without checksum check https://github.com/byteball/byteballcore/blob/master/validation_utils.js#L60
+		function isValidAddress(address) {
+			return (typeof address === "string" && address === address.toUpperCase() && address.length === 32);
 		}
 	});
 	</script>
