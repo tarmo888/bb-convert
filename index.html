@@ -3,7 +3,8 @@
 <head>
 	<meta charset="utf-8">
 	<title>Currency converter for Byteball</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+	<meta name="format-detection" content="telephone=no" />
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha256-Md8eaeo67OiouuXAi8t/Xpd8t2+IaJezATVTWbZqSOw=" crossorigin="anonymous" />
 	<style>
 	body {
@@ -39,7 +40,7 @@
 		<div class="container-fluid text-center">
 			<div class="row">
 				<div class="input-group input-group-md mb-3 col-lg-2">
-					<input class="form-control" type="number" id="amount_to_send" min="0" placeholder="Amount to send"/>
+					<input class="form-control" type="number" id="amount_to_send" min="0" placeholder="Amount to send" />
 					<div class="input-group-append">
 						<label class="input-group-text" id="amount_to_send_label" for="amount_to_send">?</label>
 					</div>
@@ -51,7 +52,7 @@
 					<select class="form-control" id="currency_rate" title="close and re-open tab to refresh rates"><option value="0" rel="">-- choose currency --</option></select>
 				</div>
 				<div class="input-group input-group-md mb-3 col-lg-4">
-					<input class="form-control" type="text" id="bb_address" placeholder="Byteball address"/>
+					<input class="form-control" type="text" id="bb_address" placeholder="Byteball address" />
 					<div class="input-group-append">
 						<label class="input-group-text" for="bb_address">Address</label>
 					</div>
@@ -67,6 +68,7 @@
 	</div>
 	<div class="sticky-footer text-center"><a id="donate" href="https://github.com/tarmo888/bb-convert">donate $5 to author of this tool</a></div>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+	<script src="launch_uri/launch_uri.js?v2"></script>
 	<script type="text/javascript">
 	$(document).ready(function() {
 		// updates URL fragment and re-calculates Byte amounts
@@ -76,41 +78,64 @@
 		});
 		// regular send button
 		$('#send-button').on('click', function(e) {
+			e.preventDefault();
 			updateUrlFragment();
-			if (!updateAmount()) {
-				e.preventDefault();
+			var launch_uri = false;
+			if (launch_uri = updateAmount()) {
+				launchUri(launch_uri, function () {
+					if (typeof ga === 'function') {
+						ga('send', 'event', 'send-button', 'success', $('#currency_rate option:selected').attr('rel'));
+					}
+				}, function () {
+					alert('Unable to launch Byteball wallet.\nClick OK to redirect to download page.');
+					window.location = $(e.target).attr('href');
+					if (typeof ga === 'function') {
+						ga('send', 'event', 'send-button', 'fail', $('#currency_rate option:selected').attr('rel'));
+					}
+				}, function () {
+					if (typeof ga === 'function') {
+						ga('send', 'event', 'send-button', 'unknown', $('#currency_rate option:selected').attr('rel'));
+					}
+				});
+			}
+			else {
 				if (typeof ga === 'function') {
 					ga('send', 'event', 'send-button', 'fill-fields');
 				}
 				alert('Please fill all fields!');
-				return false;
 			}
-			if (typeof ga === 'function') {
-				ga('send', 'event', 'send-button', 'success', $('#currency_rate option:selected').attr('rel'));
-			}
-			// executes here user click on Byteball link
 		});
 		// donate button with pre-filled inputs
 		$('#donate').on('click', function(e) {
+			e.preventDefault();
 			$('#amount_to_send').val(5);
 			$("#currency_rate option").removeAttr("selected");
 			$("#currency_rate option[rel='USD']").attr("selected", "selected");
 			$('#bb_address').val('NTYO4ZKPRBPXW6WY2QUMJBPNDLOGX5OJ');
 			updateUrlFragment();
-			if (!updateAmount()) {
-				e.preventDefault();
+			var launch_uri = false;
+			if (launch_uri = updateAmount()) {
+				launchUri(launch_uri, function () {
+					if (typeof ga === 'function') {
+						ga('send', 'event', 'donate-button', 'success', $('#currency_rate option:selected').attr('rel'));
+					}
+				}, function () {
+					alert('Unable to launch Byteball wallet.\n\nThis tool was made by tarmo888');
+					if (typeof ga === 'function') {
+						ga('send', 'event', 'donate-button', 'fail', $('#currency_rate option:selected').attr('rel'));
+					}
+				}, function () {
+					if (typeof ga === 'function') {
+						ga('send', 'event', 'donate-button', 'unknown', $('#currency_rate option:selected').attr('rel'));
+					}
+				});
+			}
+			else {
 				if (typeof ga === 'function') {
 					ga('send', 'event', 'donate-button', 'fill-fields');
 				}
-				alert('Please fill all fields!');
-				return false;
+				alert('USD currency not loaded!');
 			}
-			// copies a link from send button to donate button
-			$('#donate').attr('href', $('#send-button').attr('href'));
-			if (typeof ga === 'function') {
-				ga('send', 'event', 'donate-button', 'success', $('#currency_rate option:selected').attr('rel'));
-			}
-			// executes here user click on Byteball link
 		});
 		// all cryptocompare base currencies
 		var url = 'https://min-api.cryptocompare.com/data/price?fsym=GBYTE&tsyms=USD,EUR,GBP,BTC,ETH,GOLD,AUD,BRL,CAD,CHF,CNY,HKD,HUF,INR,JPY,KRW,MXN,NZD,PHP,PLN,RON,RUB,SGD,VEF';
@@ -145,7 +170,7 @@
 				});
 			}
 		}
-		// calculates Byte amounts and replaces link on send button
+		// calculates Byte amounts and returns launch URI
 		function updateAmount() {
 			var amount_to_send = parseFloat($('#amount_to_send').val());
 			var currency_rate = parseFloat($('#currency_rate').val());
@@ -167,15 +192,20 @@
 				return false;
 			}
 			var bb_amount = (amount_to_send/currency_rate*1e9).toFixed(0);
-			// replaces a link on send button with Byteball link
-			$('#send-button').attr('href', 'byteball:'+ bb_address +'?amount='+ bb_amount);
-			return true;
+			var params = parseParams(window.location.hash);
+			if (params.testnet) {
+				return 'byteball-tn:'+ bb_address +'?amount='+ bb_amount;
+			}
+			else {
+				return 'byteball:'+ bb_address +'?amount='+ bb_amount;
+			}
 		}
 		// updates URL fragment based on input values
 		function updateUrlFragment() {
 			if (typeof history.replaceState !== 'undefined') {
 				if ( parseFloat($('#amount_to_send').val()) || $('#currency_rate option:selected').attr('rel') || $('#bb_address').val() ) {
-					var fragment = '#amount='+ ($('#amount_to_send').val() ? parseFloat($('#amount_to_send').val()) : '') +'&currency='+ $('#currency_rate option:selected').attr('rel') + '&address='+ $('#bb_address').val();
+					var params = parseParams(window.location.hash);
+					var fragment = '#amount='+ ($('#amount_to_send').val() ? parseFloat($('#amount_to_send').val()) : '') +'&currency='+ $('#currency_rate option:selected').attr('rel') + '&address='+ $('#bb_address').val() + (params.testnet ? '&testnet=1' : '');
 					history.replaceState(null, null, fragment);
 				}
 				else {
@@ -222,7 +252,7 @@
 		}
 		// for making unique cache key
 		function utf8_to_b64( str ) {
-			return window.btoa(encodeURIComponent( escape( str )));
+			return window.btoa(encodeURIComponent(escape( str )));
 		}
 		function b64_to_utf8( str ) {
 			return unescape(decodeURIComponent(window.atob( str )));
