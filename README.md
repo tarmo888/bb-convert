@@ -14,6 +14,8 @@ It is possible to launch a [TESTNET wallet](https://byteball.org/testnet.html) i
 MIT
 
 ## Thanks
-* https://www.cryptocompare.com/api
+* https://www.cryptocompare.com/api or https://min-api.cryptocompare.com/
 * https://gist.github.com/aaronk6/d801d750f14ac31845e8
 * https://github.com/jeromeetienne/jquery-qrcode
+* https://github.com/jquery/jquery
+* https://github.com/twbs/bootstrap/tree/v4-dev

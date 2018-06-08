@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="utf-8">
-	<title>Currency converter for Byteball</title>
+	<title>Currency converter for Byteball by tarmo888</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 	<meta name="format-detection" content="telephone=no" />
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha256-Md8eaeo67OiouuXAi8t/Xpd8t2+IaJezATVTWbZqSOw=" crossorigin="anonymous" />
@@ -44,25 +44,28 @@
 	<div class="jumbotron d-flex align-items-center">
 		<div class="container-fluid text-center">
 			<div class="row">
-				<div class="input-group input-group-md mb-3 col-lg-2">
+				<div class="input-group input-group-md mb-3 col-lg-2 col-md-6">
 					<input class="form-control" type="number" id="amount_to_send" min="0" placeholder="Amount to send" />
 					<div class="input-group-append">
 						<label class="input-group-text" id="amount_to_send_label" for="amount_to_send">?</label>
 					</div>
 				</div>
-				<div class="input-group input-group-md mb-3 col-lg-3">
+				<div class="input-group input-group-md mb-3 col-lg-3 col-md-6">
 					<div class="input-group-prepend">
 						<label class="input-group-text" for="currency_rate" title="close and re-open tab to refresh rates">Currency</label>
 					</div>
 					<select class="form-control" id="currency_rate" title="close and re-open tab to refresh rates"><option value="0" rel="">-- choose currency --</option></select>
 				</div>
-				<div class="input-group input-group-md mb-3 col-lg-4">
+				<div class="input-group input-group-md mb-3 col-lg-4 col-md-6">
+					<div class="input-group-prepend">
+						<label class="input-group-text" for="bb_address">@</label>
+					</div>
 					<input class="form-control" type="text" id="bb_address" placeholder="Byteball address" />
 					<div class="input-group-append">
 						<label class="input-group-text" for="bb_address">Address</label>
 					</div>
 				</div>
-				<div class="input-group input-group-md mb-3 col-lg-3">
+				<div class="input-group input-group-md mb-3 col-lg-3 col-md-6">
 					<a class="btn btn-primary col-lg-12" role="button" id="send-button" href="https://byteball.org/#download">send with Byteball wallet</a>
 				</div>
 			</div>
@@ -148,7 +151,7 @@
 						ga('send', 'event', 'donate-button', 'success', $('#currency_rate option:selected').attr('rel'));
 					}
 				}, function () {
-					alert('Unable to launch Byteball wallet.\n\nThis tool was made by tarmo888');
+					alert('Unable to launch Byteball wallet.\n\nThis tool was made by tarmo888.\nPrice data is provided by CryptoCompare API.');
 					if (typeof ga === 'function') {
 						ga('send', 'event', 'donate-button', 'fail', $('#currency_rate option:selected').attr('rel'));
 					}
@@ -173,7 +176,7 @@
 			$('#qr-modal .modal-body').html('').qrcode({width: 512, height: 512, text: $(e.target).attr('href')});
 		});
 		// all cryptocompare base currencies
-		var url = 'https://min-api.cryptocompare.com/data/price?fsym=GBYTE&tsyms=USD,EUR,GBP,BTC,ETH,GOLD,AUD,BRL,CAD,CHF,CNY,HKD,HUF,INR,JPY,KRW,MXN,NZD,PHP,PLN,RON,RUB,SGD,VEF';
+		var url = 'https://min-api.cryptocompare.com/data/price?fsym=GBYTE&tsyms=USD,EUR,GBP,BTC,ETH,GOLD,AUD,BRL,CAD,CHF,CNY,HKD,HUF,INR,JPY,KRW,MXN,NZD,PHP,PLN,RON,RUB,SGD,VEF&extraParams=' + encodeURIComponent(document.title);
 		var cache_key = utf8_to_b64(url);
 		var settings = {'selected_currency': ''};
 		if (typeof window.localStorage !== 'undefined') {
