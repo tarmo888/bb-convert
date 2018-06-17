@@ -134,7 +134,7 @@ $(document).ready(function() {
 				if (typeof ga === 'function') {
 					ga('send', 'event', 'sendmulti-button', 'success', $('#currency_rate option:selected').attr('rel'));
 				}
-				alert('Copied! Paste it to wallet.');
+				alert('New list is copied to your clipboard!\nPaste it to your wallet.');
 			}
 			catch (err) {
 				if (typeof ga === 'function') {
