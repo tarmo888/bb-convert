@@ -1,0 +1,29 @@
+body {
+	display: table;
+	position: absolute;
+	height: 100%;
+	width: 100%;
+}
+input, select, textarea {
+	font-family:SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace
+}
+textarea {
+	min-height: 38px;
+	height: auto;
+}
+.jumbotron {
+	display: table-cell !important;
+	vertical-align: middle;
+}
+.sticky-footer {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+	padding: 10px;
+}
+.modal-body canvas {
+	width: 100%;
+	height: 100%;
+	padding: 25px;
+}

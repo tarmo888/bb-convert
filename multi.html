@@ -20,7 +20,7 @@
 	<div class="jumbotron d-flex align-items-center">
 		<div class="container-fluid">
 			<div class="row justify-content-center">
-				<div class="mb-2"><a href="./multi.html">switch to multi-address</a></div>
+				<div class="mb-2"><a href="./">switch to single-address</a></div>
 			</div>
 			<div class="row justify-content-center">
 				<div class="input-group input-group-md mb-3 col-lg-3 col-md-6">
@@ -41,15 +41,18 @@
 					<div class="input-group-prepend d-none d-sm-flex">
 						<label class="input-group-text" for="bb_address">@</label>
 					</div>
-					<input class="form-control" type="text" id="bb_address" placeholder="Byteball address" />
+					<textarea class="form-control" id="bb_address" rows="3" placeholder="multiple Byteball addresses (each address on new line)"></textarea>
 					<div class="input-group-append d-none d-sm-flex">
-						<label class="input-group-text" for="bb_address">Address</label>
+						<label class="input-group-text" for="bb_address">Addresses</label>
 					</div>
 				</div>
 			</div>
 			<div class="row justify-content-center">
-				<div class="input-group input-group-md mb-3 col-lg-3 col-md-6">
-					<a class="btn btn-primary col-lg-12" role="button" id="send-button" href="https://byteball.org/#download">send with Byteball wallet</a>
+				<div class="input-group input-group-md mb-3 col-lg-6 col-md-12">
+					<button class="btn btn-primary col m-1 copy-multi" role="button" href="#" rel="gbyte">copy GByte</a>
+					<button class="btn btn-primary col m-1 copy-multi" role="button" href="#" rel="mbyte">copy MByte</a>
+					<button class="btn btn-primary col m-1 copy-multi" role="button" href="#" rel="kbyte">copy KByte</a>
+					<button class="btn btn-primary col m-1 copy-multi" role="button" href="#" rel="byte">copy Byte</a>
 				</div>
 			</div>
 			<div class="row text-center">
@@ -58,19 +61,9 @@
 		</div>
 	</div>
 	<!-- Donation link -->
-	<div class="sticky-footer text-center"><a id="donate" href="https://github.com/tarmo888/bb-convert">donate $5 to author of this tool</a></div>
-	<!-- QR code modal -->
-	<div class="modal" id="qr-modal">
-		<div class="modal-dialog modal-dialog-centered">
-			<div class="modal-content">
-				<div class="modal-body text-center"></div>
-			</div>
-		</div>
-	</div>
+	<div class="sticky-footer text-center"><a href="./#amount=5&amp;currency=USD&amp;address=NTYO4ZKPRBPXW6WY2QUMJBPNDLOGX5OJ">donate $5 to author of this tool</a></div>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha256-xaF9RpdtRxzwYMWg4ldJoyPWqyDPCRD0Cv7YEEe6Ie8=" crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js" integrity="sha256-9MzwK2kJKBmsJFdccXoIDDtsbWFh8bjYK/C7UjB1Ay0=" crossorigin="anonymous"></script>
-	<script src="launch_uri/launch_uri.js?v2"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/4.0.2/autosize.min.js" integrity="sha256-dW8u4dvEKDThJpWRwLgGugbARnA3O2wqBcVerlg9LMc=" crossorigin="anonymous"></script>
 	<script src="script.js?v3"></script>
 </body>
 </html>
