@@ -222,29 +222,30 @@ $(document).ready(function() {
 			$('#amount_to_send_label').html('?');
 		}
 		// wallet GUI multi-send total amount is limited to 1000 some reason
+		var regional_bug = 'Some devices with comma as decimal separator, might not allow to send over 1000';
 		if (amounts['gbyte'] >= 1000) {
-			$('button[rel="gbyte"].copy-multi').attr('disabled', 'disabled');
+			$('button[rel="gbyte"].copy-multi').attr('title', regional_bug);
 		}
 		else {
-			$('button[rel="gbyte"].copy-multi').removeAttr('disabled');
+			$('button[rel="gbyte"].copy-multi').removeAttr('title');
 		}
 		if (amounts['mbyte'] >= 1000) {
-			$('button[rel="mbyte"].copy-multi').attr('disabled', 'disabled');
+			$('button[rel="mbyte"].copy-multi').attr('title', regional_bug);
 		}
 		else {
-			$('button[rel="mbyte"].copy-multi').removeAttr('disabled');
+			$('button[rel="mbyte"].copy-multi').removeAttr('title');
 		}
 		if (amounts['kbyte'] >= 1000) {
-			$('button[rel="kbyte"].copy-multi').attr('disabled', 'disabled');
+			$('button[rel="kbyte"].copy-multi').attr('title', regional_bug);
 		}
 		else {
-			$('button[rel="kbyte"].copy-multi').removeAttr('disabled');
+			$('button[rel="kbyte"].copy-multi').removeAttr('title');
 		}
 		if (amounts['byte'] >= 1000) {
-			$('button[rel="byte"].copy-multi').attr('disabled', 'disabled');
+			$('button[rel="byte"].copy-multi').attr('title', regional_bug);
 		}
 		else {
-			$('button[rel="byte"].copy-multi').removeAttr('disabled');
+			$('button[rel="byte"].copy-multi').removeAttr('title');
 		}
 		if (!amount_to_send || !currency_rate || !bb_address) {
 			return false;
