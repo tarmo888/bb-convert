@@ -6,11 +6,13 @@ $(document).ready(function() {
 	$('#amount_to_send, #bb_address').on('keyup', function(e) {
 		updateUrlFragment();
 		updateAmount();
+		parseAdresses($('#bb_address').val());
 	});
 	// update when amount increased with native controls or currency dropdown value change
 	$('#amount_to_send, #currency_rate, #bb_address').on('change', function(e) {
 		updateUrlFragment();
 		updateAmount();
+		parseAdresses($('#bb_address').val());
 	});
 	// regular send button
 	$('#send-button').on('click', function(e) {
@@ -82,34 +84,19 @@ $(document).ready(function() {
 	});
 	$('.copy-multi').on('click', function(e) {
 		e.preventDefault();
-		var addresses = {};
-		var total_count = 0;
 		var launch_data = updateAmount();
 		if (launch_data) {
 			// parse addresses
-			$.each($('#bb_address').val().split('\n'), function( key, value ) {
-				var address_list = value.split(/[ \t,]+/);
-				console.log(address_list);
-				var address_value = parseFloat(address_list[1]) ? parseFloat(address_list[1]) : 1;
-				if (isValidAddress(address_list[0])) {
-					if (addresses[address_list[0]]) {
-						addresses[address_list[0]] += address_value;
-					}
-					else {
-						addresses[address_list[0]] = address_value;
-					}
-					total_count += address_value;
-				}
-			});
+			var parsed = parseAdresses($('#bb_address').val());
 			// count valid unique addresses
-			if (!Object.keys(addresses).length) {
+			if (!Object.keys(parsed.addresses).length) {
 				if (typeof ga === 'function') {
 					ga('send', 'event', 'sendmulti-button', 'not-enough');
 				}
 				alert('No valid addresses.');
 				return false;
 			}
-			else if (Object.keys(addresses).length > 120) {
+			else if (Object.keys(parsed.addresses).length > 120) {
 				if (typeof ga === 'function') {
 					ga('send', 'event', 'sendmulti-button', 'too-many');
 				}
@@ -118,10 +105,10 @@ $(document).ready(function() {
 			}
 			// compose list
 			var multi_list = [];
-			$.each(addresses, function( address, count ) {
+			$.each(parsed.addresses, function( address, count ) {
 				var amount = launch_data.amounts[$(e.target).attr('rel')];
 				var fixed = launch_data.fixed[$(e.target).attr('rel')];
-				multi_list.push(address +', '+ (count/total_count*amount).toFixed(fixed));
+				multi_list.push(address +', '+ (count/parsed.total_value*amount).toFixed(fixed));
 			});
 			// copy to clipboard
 			var copyText = document.createElement("textarea");
@@ -193,6 +180,42 @@ $(document).ready(function() {
 			});
 		}
 	}
+
+	// parses multiple address and gives feedback
+	function parseAdresses(address_text) {
+		var addresses = {};
+		var total_value = 0;
+		var invalid_count = 0;
+
+		$.each(address_text.split('\n'), function( key, value ) {
+			var address_list = value.split(/[ \t,]+/);
+			var address_value = parseFloat(address_list[1]) ? parseFloat(address_list[1]) : 1;
+			if (isValidAddress(address_list[0])) {
+				if (addresses[address_list[0]]) {
+					addresses[address_list[0]] += address_value;
+				}
+				else {
+					addresses[address_list[0]] = address_value;
+				}
+				total_value += address_value;
+			}
+			else {
+				invalid_count++;
+			}
+		});
+		$('#parse-results').html('');
+		if ($('#bb_address').val()) {
+			$('#parse-results').append('<div>Total rows: '+ address_text.split('\n').length +'</div>');
+			if (invalid_count) {
+				$('#parse-results').append('<div>Invalid rows: '+ invalid_count +'</div>');
+			}
+			$('#parse-results').append('<div>Unique addresses: '+ Object.keys(addresses).length +'</div>');
+			if ( total_value && total_value !== Object.keys(addresses).length ) {
+				$('#parse-results').append('<div>Amount split by '+ total_value +'</div>');
+			}
+		}
+		return {'addresses': addresses, 'total_value': total_value, 'invalid_count': invalid_count};
+	}
 	// calculates Byte amounts, returns launch URI and amounts
 	function updateAmount() {
 		var amount_to_send = parseFloat($('#amount_to_send').val());
@@ -202,27 +225,24 @@ $(document).ready(function() {
 		var fixed = {'gbyte': 9, 'mbyte': 6, 'kbyte': 3, 'byte': 0};
 		if (currency_rate) {
 			$('#amount_to_send_label').html($('#currency_rate option:selected').attr('rel'));
+			$('#conversion').html('');
 			if (amount_to_send) {
 				amounts['gbyte'] = (amount_to_send/currency_rate);
 				amounts['mbyte'] = (amount_to_send/currency_rate*1e3);
 				amounts['kbyte'] = (amount_to_send/currency_rate*1e6);
 				amounts['byte'] = (amount_to_send/currency_rate*1e9);
-				$('#conversion').html('');
 				$('#conversion').append('<div>'+ amounts['gbyte'].toFixed(fixed['gbyte']) +' GByte</div>');
 				$('#conversion').append('<div>'+ amounts['mbyte'].toFixed(fixed['mbyte']) +' MByte</div>');
 				$('#conversion').append('<div>'+ amounts['kbyte'].toFixed(fixed['kbyte']) +' KByte</div>');
 				$('#conversion').append('<div>'+ amounts['byte'].toFixed(fixed['byte']) +' Byte</div>');
-			}
-			else {
-				$('#conversion').html('');
 			}
 		}
 		else {
 			$('#conversion').html('');
 			$('#amount_to_send_label').html('?');
 		}
-		// wallet GUI multi-send total amount is limited to 1000 some reason
-		var regional_bug = 'Some devices with comma as decimal separator, might not allow to send over 1000';
+		// wallet GUI multi-send total amount has bug that doesn't allow thousands with some regional settings
+		var regional_bug = 'Byteball wallet v2.2.0 has a bug that will not allow to send over 1000 of any unit with some regional settings.';
 		if (amounts['gbyte'] >= 1000) {
 			$('button[rel="gbyte"].copy-multi').attr('title', regional_bug);
 		}
@@ -294,7 +314,7 @@ $(document).ready(function() {
 		var params = parseParams(window.location.hash);
 		// pre-fill amount from URL fragment
 		if (params.amount) {
-			$('#amount_to_send').val(parseInt(params.amount));
+			$('#amount_to_send').val(parseFloat(params.amount));
 			$("#amount_to_send").trigger("change");
 		}
 		if (params.currency) {
