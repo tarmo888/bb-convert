@@ -190,7 +190,7 @@ $(document).ready(function() {
 		$.each(address_text.split('\n'), function( key, value ) {
 			var address_list = value.split(/[ \t,]+/);
 			var address_value = parseFloat(address_list[1]) ? parseFloat(address_list[1]) : 1;
-			if (isValidAddress(address_list[0])) {
+			if (isValidAddress(address_list[0], true)) {
 				if (addresses[address_list[0]]) {
 					addresses[address_list[0]] += address_value;
 				}
@@ -358,11 +358,14 @@ $(document).ready(function() {
 		return unescape(decodeURIComponent(window.atob( str )));
 	}
 	// simple validation without checksum check https://github.com/byteball/byteballcore/blob/master/validation_utils.js
-	function isValidAddress(str) {
+	function isValidAddress(str, multi) {
 		if (typeof str !== "string") {
 			return false;
 		}
-		// current version of the wallet doesn't accept launch URIs with email addresses, but next will
+		if (multi) {
+			return str === str.toUpperCase() && str.length === 32;
+		}
+		// v2.3.0 wallet accepts launch URIs with email addresses
 		return (str === str.toUpperCase() && str.length === 32) || /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(str);
 	}
 });
