@@ -3,10 +3,15 @@
 <head>
 	<meta charset="utf-8">
 	<title>Currency converter for Byteball by tarmo888</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-	<meta name="format-detection" content="telephone=no" />
+	<meta name="viewport"           content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+	<meta name="format-detection"   content="telephone=no" />
+	<meta property="og:url"         content="https://tarmo888.github.io/bb-convert/multi.html" />
+	<meta property="og:type"        content="website" />
+	<meta property="og:title"       content="Currency converter for Byteball" />
+	<meta property="og:description" content="Tool for converting different currencies to Byteball amounts" />
+	<meta property="og:image"       content="https://tarmo888.github.io/bb-convert/bb-convert.png" />
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha256-Md8eaeo67OiouuXAi8t/Xpd8t2+IaJezATVTWbZqSOw=" crossorigin="anonymous" />
-	<link rel="stylesheet" href="style.css?v3" />
+	<link rel="stylesheet" href="style.css?v4" />
 	<script>
 	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -17,54 +22,93 @@
 	</script>
 </head>
 <body>
-	<div class="jumbotron d-flex align-items-center">
-		<div class="container-fluid">
-			<div class="row justify-content-center">
-				<div class="mb-2"><a href="./">switch to single-address</a></div>
+	<div id="web-container">
+		<div class="jumbotron d-flex align-items-center">
+			<div class="top-about fixed-top text-center col-12 col-xs-12 mt-2">
+				<a href="#" data-toggle="modal" data-target="#about-modal"><span class="emoji">ℹ️</span> About multi-address tool</a>
 			</div>
-			<div class="row justify-content-center">
-				<div class="input-group input-group-md mb-3 col-lg-3 col-md-6">
-					<input class="form-control" type="number" id="amount_to_send" min="0" placeholder="Amount to send" />
-					<div class="input-group-append">
-						<label class="input-group-text" id="amount_to_send_label" for="amount_to_send">?</label>
+			<div class="container-fluid">
+				<div class="row justify-content-center">
+					<div class="mb-2"><a href="./">switch to single-address</a></div>
+				</div>
+				<div class="row justify-content-center">
+					<div class="input-group input-group-md mb-3 col-lg-3 col-md-6">
+						<input class="form-control" type="number" id="amount_to_send" min="0" placeholder="Amount to send" />
+						<div class="input-group-append">
+							<label class="input-group-text" id="amount_to_send_label" for="amount_to_send">?</label>
+						</div>
+					</div>
+					<div class="input-group input-group-md mb-3 col-lg-3 col-md-6">
+						<div class="input-group-prepend">
+							<label class="input-group-text" for="currency_rate" title="close and re-open tab to refresh rates">Currency</label>
+						</div>
+						<select class="form-control" id="currency_rate" title="close and re-open tab to refresh rates"><option value="0" rel="">-- choose currency --</option></select>
 					</div>
 				</div>
-				<div class="input-group input-group-md mb-3 col-lg-3 col-md-6">
-					<div class="input-group-prepend">
-						<label class="input-group-text" for="currency_rate" title="close and re-open tab to refresh rates">Currency</label>
-					</div>
-					<select class="form-control" id="currency_rate" title="close and re-open tab to refresh rates"><option value="0" rel="">-- choose currency --</option></select>
-				</div>
-			</div>
-			<div class="row justify-content-center">
-				<div class="input-group input-group-md mb-3 col-lg-6 col-md-12">
-					<div class="input-group-prepend d-none d-sm-flex">
-						<label class="input-group-text" for="bb_address">@</label>
-					</div>
-					<textarea class="form-control" id="bb_address" rows="3" placeholder="multiple Byteball addresses (each address on new line)"></textarea>
-					<div class="input-group-append d-none d-sm-flex">
-						<label class="input-group-text" for="bb_address">Addresses</label>
+				<div class="row justify-content-center">
+					<div class="input-group input-group-md mb-3 col-lg-6 col-md-12">
+						<div class="input-group-prepend d-none d-sm-flex">
+							<label class="input-group-text" for="bb_address">@</label>
+						</div>
+						<textarea class="form-control" id="bb_address" rows="3" placeholder="multiple Byteball addresses (each address on new line)"></textarea>
+						<div class="input-group-append d-none d-sm-flex">
+							<label class="input-group-text" for="bb_address">Addresses</label>
+						</div>
 					</div>
 				</div>
-			</div>
-			<div class="row justify-content-center">
-				<div class="input-group input-group-md mb-3 col-lg-6 col-md-12">
-					<button class="btn btn-primary col m-1 copy-multi" role="button" href="#" rel="gbyte">copy GByte</a>
-					<button class="btn btn-primary col m-1 copy-multi" role="button" href="#" rel="mbyte">copy MByte</a>
-					<button class="btn btn-primary col m-1 copy-multi" role="button" href="#" rel="kbyte">copy KByte</a>
-					<button class="btn btn-primary col m-1 copy-multi" role="button" href="#" rel="byte">copy Byte</a>
+				<div class="row justify-content-center">
+					<div class="input-group input-group-md mb-3 col-lg-6 col-md-12">
+						<button class="btn btn-primary col m-1 copy-multi" role="button" href="#" rel="gbyte">copy GByte</a>
+						<button class="btn btn-primary col m-1 copy-multi" role="button" href="#" rel="mbyte">copy MByte</a>
+						<button class="btn btn-primary col m-1 copy-multi" role="button" href="#" rel="kbyte">copy KByte</a>
+						<button class="btn btn-primary col m-1 copy-multi" role="button" href="#" rel="byte">copy Byte</a>
+					</div>
 				</div>
-			</div>
-			<div class="row text-center">
-				<div class="col-12 mb-3" id="parse-results"></div>
-				<div class="col-12 mb-3" id="conversion"></div>
+				<div class="row text-center">
+					<div class="col-12 mb-3" id="parse-results"></div>
+					<div class="col-12 mb-3" id="conversion"></div>
+				</div>
 			</div>
 		</div>
 	</div>
-	<!-- Donation link -->
-	<div class="sticky-footer text-center"><a href="./#amount=5&amp;currency=USD&amp;address=NTYO4ZKPRBPXW6WY2QUMJBPNDLOGX5OJ">donate $5 to author of this tool</a></div>
+	<!-- about modal -->
+	<div class="modal" id="about-modal" tabindex="-1" role="dialog">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">About multi-address tool</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="mb-4">
+						<p>This tool lets users enter the total amount they want to send and all the addresses they want to send to.</p>
+						<p>By default, it will split the total amount equally (un-equally if some addresses appear multiple times) between the addresses and will generate the address list with amounts, which are compatible to be pasted into Byteball wallet.</p>
+						<p>It also accepts any other 2 column (comma separated address and amount) lists in case user wants to add weight to some addresses, so these would get proportionally bigger amount.</p>
+						<p>When clicking on Copy button (GByte, MByte, KByte or Byte - depending what unit you have selected in your wallet app), it will generate a new list into your clipboard that can be pasted to wallet app.</p>
+					</div>
+					<h5>Thanks</h5>
+					<div class="row">
+						<div class="col">
+							<div><span class="emoji">🔗</span> Uses <a href="https://min-api.cryptocompare.com/" target="_blank">CryptoCompare API</a> for currency rates.</div>
+							<div><span class="emoji">🔗</span> Uses <a href="https://github.com/twbs/bootstrap/tree/v4-dev" target="_blank">Twitter Bootstrap</a> for responsive grid layout and modals.</div>
+							<div><span class="emoji">🔗</span> Uses <a href="https://github.com/jquery/jquery" target="_blank">jQuery</a> to put everything working together.</div>
+							<div><span class="emoji">🔗</span> Uses <a href="https://github.com/jeromeetienne/jquery-qrcode" target="_blank">jQuery.qrcode by jeromeetienne</a> to generate QR codes.</div>
+							<div><span class="emoji">🔗</span> Uses <a href="https://github.com/jackmoore/autosize" target="_blank">autosize by jackmoore</a> to change the size of textarea.</div>
+							<div><span class="emoji">🔗</span> Uses <a href="https://gist.github.com/aaronk6/d801d750f14ac31845e8" target="_blank">launchUri by aaronk6</a> to launch Byteball app from links.</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer text-center">
+					<a class="btn btn-secondary" href="./#amount=5&amp;currency=USD&amp;address=NTYO4ZKPRBPXW6WY2QUMJBPNDLOGX5OJ">donate $5 worth of bytes to author of this tool</a>
+				</div>
+			</div>
+		</div>
+	</div>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha256-xaF9RpdtRxzwYMWg4ldJoyPWqyDPCRD0Cv7YEEe6Ie8=" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/4.0.2/autosize.min.js" integrity="sha256-dW8u4dvEKDThJpWRwLgGugbARnA3O2wqBcVerlg9LMc=" crossorigin="anonymous"></script>
-	<script src="script.js?v6"></script>
+	<script src="script.js?v7"></script>
 </body>
 </html>
