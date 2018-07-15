@@ -1,6 +1,8 @@
 # Currency converter for Byteball
 This is a stand-alone currency conversion tool for Byteball wallet, which supports converting 24 different currencies (including USD, EUR, BTC & ETH) into GByte, MByte, KByte and Byte amounts and if Byteball wallet is already installed then it opens the wallet where user can simply click Send to initiate the payment. This tool solves the problem that Byteball wallet doesn't have a built-in currency conversion tool for sending amount values other than native currency.
 
+![Screenshot](bb-convert.png)
+
 ## Pre-filling inputs
 It is possible to prefill form fields to request somebody to send, for example, 1 million Venezuelan Bolívar (VEF) by sending them a [link like this](https://tarmo888.github.io/bb-convert/#amount=1000000&currency=VEF&address=NTYO4ZKPRBPXW6WY2QUMJBPNDLOGX5OJ) (obviously with your own address). Just type in new values and it generates a new link on your browser address bar.
 
