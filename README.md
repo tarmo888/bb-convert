@@ -25,3 +25,4 @@ MIT
 * https://github.com/jquery/jquery
 * https://github.com/twbs/bootstrap/tree/v4-dev
 * https://github.com/jackmoore/autosize
+* https://github.com/tholman/github-corners
