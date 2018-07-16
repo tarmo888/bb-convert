@@ -142,11 +142,29 @@ $(document).ready(function() {
 	});
 	$('#conversion').on('click', '#qr-opener', function(e) {
 		e.preventDefault();
+		$('#qr-modal .modal-body').html('').qrcode({width: 512, height: 512, text: $(e.target).attr('href')});
+	});
+	$('#about-modal').on('show.bs.modal', function (e) {
+		if (typeof ga === 'function') {
+			ga('send', 'event', 'about-modal', 'open');
+		}
+	});
+	$('#about-modal').on('hide.bs.modal', function (e) {
+		if (typeof ga === 'function') {
+			ga('send', 'event', 'about-modal', 'close');
+		}
+	});
+	$('#qr-modal').on('show.bs.modal', function (e) {
 		if (typeof ga === 'function') {
 			ga('send', 'event', 'QR-code', 'open');
 		}
-		$('#qr-modal .modal-body').html('').qrcode({width: 512, height: 512, text: $(e.target).attr('href')});
 	});
+	$('#qr-modal').on('hide.bs.modal', function (e) {
+		if (typeof ga === 'function') {
+			ga('send', 'event', 'QR-code', 'close');
+		}
+	});
+
 	// all cryptocompare base currencies
 	var url = 'https://min-api.cryptocompare.com/data/price?fsym=GBYTE&tsyms=USD,EUR,GBP,BTC,ETH,GOLD,AUD,BRL,CAD,CHF,CNY,HKD,HUF,INR,JPY,KRW,MXN,NZD,PHP,PLN,RON,RUB,SGD,VEF&extraParams=' + encodeURIComponent(document.title);
 	var cache_key = utf8_to_b64(url);
