@@ -9,7 +9,7 @@
 	<meta property="og:type"        content="website" />
 	<meta property="og:title"       content="Currency converter for Byteball" />
 	<meta property="og:description" content="Tool for converting different currencies to Byteball amounts" />
-	<meta property="og:image"       content="https://tarmo888.github.io/bb-convert/bb-convert.png" />
+	<meta property="og:image"       content="https://tarmo888.github.io/bb-convert/bb-convert-multi.png" />
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha256-Md8eaeo67OiouuXAi8t/Xpd8t2+IaJezATVTWbZqSOw=" crossorigin="anonymous" />
 	<link rel="stylesheet" href="style.css?v5" />
 	<script>
@@ -34,7 +34,7 @@
 				</div>
 				<div class="row justify-content-center">
 					<div class="input-group input-group-md mb-3 col-lg-3 col-md-6">
-						<input class="form-control" type="number" id="amount_to_send" min="0" placeholder="Amount to send" />
+						<input class="form-control" type="number" id="amount_to_send" min="0" placeholder="Total amount to send" />
 						<div class="input-group-append">
 							<label class="input-group-text" id="amount_to_send_label" for="amount_to_send">?</label>
 						</div>
@@ -48,12 +48,12 @@
 				</div>
 				<div class="row justify-content-center">
 					<div class="input-group input-group-md mb-3 col-lg-6 col-md-12">
-						<div class="input-group-prepend d-none d-sm-flex">
-							<label class="input-group-text" for="bb_address">@</label>
+						<div class="input-group-prepend d-none d-sm-flex align-text-top">
+							<label class="input-group-text" for="bb_address"><span class="align-self-start">Recipient</span></label>
 						</div>
 						<textarea class="form-control" id="bb_address" rows="3" placeholder="multiple Byteball addresses (each address on new line)"></textarea>
-						<div class="input-group-append d-none d-sm-flex">
-							<label class="input-group-text" for="bb_address">Addresses</label>
+						<div class="input-group-append d-none d-sm-flex align-text-top">
+							<label class="input-group-text" for="bb_address"><span class="align-self-start">Addresses</span></label>
 						</div>
 					</div>
 				</div>
@@ -111,6 +111,6 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha256-xaF9RpdtRxzwYMWg4ldJoyPWqyDPCRD0Cv7YEEe6Ie8=" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/4.0.2/autosize.min.js" integrity="sha256-dW8u4dvEKDThJpWRwLgGugbARnA3O2wqBcVerlg9LMc=" crossorigin="anonymous"></script>
-	<script src="script.js?v8"></script>
+	<script src="script.js?v9"></script>
 </body>
 </html>

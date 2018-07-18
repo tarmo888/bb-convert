@@ -383,17 +383,12 @@ $(document).ready(function() {
 		if (multi) {
 			return str === str.toUpperCase() && str.length === 32;
 		}
-		// v2.3.0 wallet accepts launch URIs with email addresses
-		return (str === str.toUpperCase() && str.length === 32) ||
-			/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(str);
-		// address aliases are not supported yet via `byteball:` URI
-		/*
+		// v2.4.1 wallet accepts launch URIs with email, different aliases and phone
 		return (str === str.toUpperCase() && str.length === 32) ||
 			/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(str) ||
 			/^reddit\/[a-z0-9\-_]{3,20}$/i.test(str) ||
 			/^steem\/[a-z0-9\-_]{3,20}$/i.test(str) ||
 			/^@([a-z\d\-_])+$/i.test(str) ||
-			/^\+?\d{9,14}$/.test(str);
-		*/
+			/^\+\d{9,14}$/.test(str);
 	}
 });
