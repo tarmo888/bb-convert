@@ -142,7 +142,12 @@ $(document).ready(function() {
 	});
 	$('#conversion').on('click', '#qr-opener', function(e) {
 		e.preventDefault();
-		$('#qr-modal .modal-body').html('').qrcode({width: 512, height: 512, text: $(e.target).attr('href')});
+		$('#qr-modal .modal-body').html('').qrcode({
+			render: !!document.createElement('canvas').getContext ? 'canvas' : 'table',
+			width: 420,
+			height: 420,
+			text: $(e.target).attr('href')
+		});
 	});
 	$('#about-modal').on('show.bs.modal', function (e) {
 		if (typeof ga === 'function') {
