@@ -21,6 +21,7 @@ button:focus {
 .jumbotron {
 	display: table-cell !important;
 	vertical-align: middle;
+	border-radius: 0;
 }
 .modal-body canvas {
 	width: 100%;
