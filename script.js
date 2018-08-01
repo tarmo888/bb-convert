@@ -171,7 +171,7 @@ $(document).ready(function() {
 	});
 
 	// all cryptocompare base currencies
-	var url = 'https://min-api.cryptocompare.com/data/price?fsym=GBYTE&tsyms=USD,EUR,GBP,BTC,ETH,STEEM,GOLD,AUD,BRL,CAD,CHF,CNY,HKD,HUF,INR,IRR,JPY,KRW,MXN,NZD,PHP,PLN,RON,RUB,SGD,VEF&extraParams=' + encodeURIComponent(document.title);
+	var url = 'https://min-api.cryptocompare.com/data/price?fsym=GBYTE&tsyms=USD,EUR,GBP,BTC,ETH,STEEM,GOLD,AUD,BRL,CAD,CHF,CNY,HKD,HUF,INR,IRR,JPY,KRW,MXN,NZD,PHP,PKR,PLN,RON,RUB,SGD,VEF&extraParams=' + encodeURIComponent(document.title);
 	var cache_key = utf8_to_b64(url);
 	var settings = {'selected_currency': ''};
 	if (typeof window.localStorage !== 'undefined') {
