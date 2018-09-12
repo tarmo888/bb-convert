@@ -1,0 +1,6 @@
+[submodule "launch_uri"]
+	path = launch_uri
+	url = https://gist.github.com/d801d750f14ac31845e8.git
+[submodule "jquery-editable-select"]
+	path = jquery-editable-select
+	url = https://github.com/indrimuska/jquery-editable-select.git
