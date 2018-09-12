@@ -8,7 +8,8 @@ html {
 	width: 100%;
 }
 input, select, textarea {
-	font-family:SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace
+	font-family:SFMono-Regular,Consolas,Liberation Mono,Menlo,Courier,monospace;
+	background-color: white !important;
 }
 textarea {
 	min-height: 38px;

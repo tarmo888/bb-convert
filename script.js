@@ -9,7 +9,14 @@ $(document).ready(function() {
 		parseAdresses($('#bb_address').val());
 	});
 	// update when amount increased with native controls or currency dropdown value change
-	$('#amount_to_send, #currency_rate, #bb_address').on('change', function(e) {
+	$('#amount_to_send, #bb_address').on('change', function(e) {
+		updateUrlFragment();
+		updateAmount();
+		parseAdresses($('#bb_address').val());
+	})
+	$('#currency_rate').on('change', function(e) {
+		$('#amount_to_send_label').text(($("#currency_rate option:selected").attr('rel') || '?'));
+		$('#currency_rate').attr('rel', $('#currency_rate').val());
 		updateUrlFragment();
 		updateAmount();
 		parseAdresses($('#bb_address').val());
@@ -22,24 +29,24 @@ $(document).ready(function() {
 		if (launch_data) {
 			if ( !isValidAddress($('#bb_address').val()) ) {
 				if (typeof ga === 'function') {
-					ga('send', 'event', 'send-button', 'invalid', $('#currency_rate option:selected').attr('rel'));
+					ga('send', 'event', 'send-button', 'invalid', $('#amount_to_send_label').text());
 				}
 				alert('Please check the address, it\'s not valid!');
 				return false;
 			}
 			launchUri(launch_data.launch_uri, function () {
 				if (typeof ga === 'function') {
-					ga('send', 'event', 'send-button', 'success', $('#currency_rate option:selected').attr('rel'));
+					ga('send', 'event', 'send-button', 'success', $('#amount_to_send_label').text());
 				}
 			}, function () {
 				alert('Unable to launch Byteball wallet.\nClick OK to redirect to download page.');
 				window.location = $(e.target).attr('href');
 				if (typeof ga === 'function') {
-					ga('send', 'event', 'send-button', 'fail', $('#currency_rate option:selected').attr('rel'));
+					ga('send', 'event', 'send-button', 'fail', $('#amount_to_send_label').text());
 				}
 			}, function () {
 				if (typeof ga === 'function') {
-					ga('send', 'event', 'send-button', 'unknown', $('#currency_rate option:selected').attr('rel'));
+					ga('send', 'event', 'send-button', 'unknown', $('#amount_to_send_label').text());
 				}
 			});
 		}
@@ -52,35 +59,7 @@ $(document).ready(function() {
 	});
 	// donate button with pre-filled inputs
 	$('#donate').on('click', function(e) {
-		e.preventDefault();
-		$('#amount_to_send').val(5);
-		$("#currency_rate option").removeAttr("selected");
-		$("#currency_rate option[rel='USD']").attr("selected", "selected");
-		$('#bb_address').val('NTYO4ZKPRBPXW6WY2QUMJBPNDLOGX5OJ');
-		updateUrlFragment();
-		var launch_data = updateAmount();
-		if (launch_data) {
-			launchUri(launch_data.launch_uri, function () {
-				if (typeof ga === 'function') {
-					ga('send', 'event', 'donate-button', 'success', $('#currency_rate option:selected').attr('rel'));
-				}
-			}, function () {
-				alert('Unable to launch Byteball wallet.\n\nThis tool was made by tarmo888.\nPrice data is provided by CryptoCompare API.');
-				if (typeof ga === 'function') {
-					ga('send', 'event', 'donate-button', 'fail', $('#currency_rate option:selected').attr('rel'));
-				}
-			}, function () {
-				if (typeof ga === 'function') {
-					ga('send', 'event', 'donate-button', 'unknown', $('#currency_rate option:selected').attr('rel'));
-				}
-			});
-		}
-		else {
-			if (typeof ga === 'function') {
-				ga('send', 'event', 'donate-button', 'fill-fields');
-			}
-			alert('USD currency not loaded!');
-		}
+		window.location.reload();
 	});
 	$('.copy-multi').on('click', function(e) {
 		e.preventDefault();
@@ -119,13 +98,13 @@ $(document).ready(function() {
 			try {
 				document.execCommand("copy");
 				if (typeof ga === 'function') {
-					ga('send', 'event', 'sendmulti-button', 'success', $('#currency_rate option:selected').attr('rel'));
+					ga('send', 'event', 'sendmulti-button', 'success', $('#amount_to_send_label').text());
 				}
 				alert('New list is copied to your clipboard!\nPaste it to your wallet.');
 			}
 			catch (err) {
 				if (typeof ga === 'function') {
-					ga('send', 'event', 'sendmulti-button', 'fail', $('#currency_rate option:selected').attr('rel'));
+					ga('send', 'event', 'sendmulti-button', 'fail', $('#amount_to_send_label').text());
 				}
 				alert('Coping failed!');
 			}
@@ -178,7 +157,7 @@ $(document).ready(function() {
 		// saves selected currency in local storage for longer
 		settings = JSON.parse(localStorage.getItem(cache_key)) || settings;
 		$('#currency_rate').on('change', function(e) {
-			settings.selected_currency = $('#currency_rate option:selected').attr('rel');
+			settings.selected_currency = $('#amount_to_send_label').text();
 			localStorage.setItem(cache_key, JSON.stringify(settings));
 		});
 	}
@@ -242,12 +221,11 @@ $(document).ready(function() {
 	// calculates Byte amounts, returns launch URI and amounts
 	function updateAmount() {
 		var amount_to_send = parseFloat($('#amount_to_send').val());
-		var currency_rate = parseFloat($('#currency_rate').val());
+		var currency_rate = parseFloat($('#currency_rate').attr('rel'));
 		var bb_address = $('#bb_address').val();
 		var amounts = {};
 		var fixed = {'gbyte': 9, 'mbyte': 6, 'kbyte': 3, 'byte': 0};
 		if (currency_rate) {
-			$('#amount_to_send_label').html($('#currency_rate option:selected').attr('rel'));
 			$('#conversion').html('');
 			if (amount_to_send) {
 				amounts['gbyte'] = (amount_to_send/currency_rate);
@@ -262,7 +240,6 @@ $(document).ready(function() {
 		}
 		else {
 			$('#conversion').html('');
-			$('#amount_to_send_label').html('?');
 		}
 		// wallet GUI multi-send total amount has bug that doesn't allow thousands with some regional settings
 		var regional_bug = 'Byteball wallet v2.2.0 has a bug that will not allow to send over 1000 of any unit with some regional settings.';
@@ -308,7 +285,7 @@ $(document).ready(function() {
 	// updates URL fragment based on input values
 	function updateUrlFragment() {
 		if (typeof history.replaceState !== 'undefined') {
-			if ( parseFloat($('#amount_to_send').val()) || $('#currency_rate option:selected').attr('rel') || $('#bb_address').val() ) {
+			if ( parseFloat($('#amount_to_send').val()) || parseFloat($('#currency_rate').attr('rel')) || $('#bb_address').val() ) {
 				var params = parseParams(window.location.hash);
 				var addresses = $('#bb_address').val().split('\n');
 				var new_addresses = [];
@@ -316,7 +293,8 @@ $(document).ready(function() {
 				$.each(addresses, function(key, value) {
 					new_addresses.push(value.split(/[ \t,]+/).join(','));
 				});
-				var fragment = '#amount='+ ($('#amount_to_send').val() ? parseFloat($('#amount_to_send').val()) : '') +'&currency='+ $('#currency_rate option:selected').attr('rel') + '&address='+ new_addresses.join(';') + (params.testnet ? '&testnet=1' : '');
+				var currency = !!parseFloat($('#currency_rate').attr('rel')) && $('#amount_to_send_label').text() == '?' ? parseFloat($('#currency_rate').attr('rel')) : $('#amount_to_send_label').text();
+				var fragment = '#amount='+ ($('#amount_to_send').val() ? parseFloat($('#amount_to_send').val()) : '') +'&currency='+ currency + '&address='+ new_addresses.join(';') + (params.testnet ? '&testnet=1' : '');
 				history.replaceState(null, null, fragment);
 			}
 			else {
@@ -328,12 +306,12 @@ $(document).ready(function() {
 	function drawRates(rates) {
 		// currency rates loop
 		for (i in rates) {
-			$('#currency_rate').append('<option value="'+ rates[i] +'" rel="'+ i +'">'+ i +' ('+ rates[i].toLocaleString() +' = GByte)</option>');
+			$('#currency_rate').append('<option value="'+ rates[i] +'" data-value="'+ rates[i] +'" rel="'+ i +'">'+ i +' ('+ rates[i].toLocaleString() +' = GByte)</option>');
 		}
-		$('#currency_rate').append('<option value="1" rel="GByte">GByte (1 = GByte)</option>');
-		$('#currency_rate').append('<option value="1000" rel="MByte">MByte ('+ (1000).toLocaleString() +' = GByte)</option>');
-		$('#currency_rate').append('<option value="1000000" rel="KByte">KByte ('+ (1000000).toLocaleString() +' = GByte)</option>');
-		$('#currency_rate').append('<option value="1000000000" rel="Byte">Byte ('+ (1000000000).toLocaleString() +' = GByte)</option>');
+		$('#currency_rate').append('<option value="1" data-value="1" rel="GByte">GByte (1 = GByte)</option>');
+		$('#currency_rate').append('<option value="1000" data-value="1000" rel="MByte">MByte ('+ (1000).toLocaleString() +' = GByte)</option>');
+		$('#currency_rate').append('<option value="1000000" data-value="1000000" rel="KByte">KByte ('+ (1000000).toLocaleString() +' = GByte)</option>');
+		$('#currency_rate').append('<option value="1000000000" data-value="1000000000" rel="Byte">Byte ('+ (1000000000).toLocaleString() +' = GByte)</option>');
 		var params = parseParams(window.location.hash);
 		// pre-fill amount from URL fragment
 		if (params.amount) {
@@ -347,7 +325,12 @@ $(document).ready(function() {
 		if (settings.selected_currency && $("#currency_rate option[rel='"+ settings.selected_currency +"']").length) {
 			$("#currency_rate option").removeAttr("selected");
 			$("#currency_rate option[rel='"+ settings.selected_currency +"']").attr("selected", "selected");
+			$('#amount_to_send_label').text(settings.selected_currency);
+			$('#currency_rate').attr('rel', $('#currency_rate').val());
 			$("#currency_rate").trigger("change");
+		}
+		else if (!!parseFloat(settings.selected_currency)) {
+			$('#currency_rate').attr('rel', settings.selected_currency);
 		}
 		// pre-fill address from URL fragment
 		if (params.address) {
@@ -361,6 +344,27 @@ $(document).ready(function() {
 				$('#bb_address').val(decodeURIComponent(params.address).split(';')[0]);
 			}
 			$("#bb_address").trigger("change");
+		}
+		$('#currency_rate').editableSelect({ filter: false, effects: 'slide' }).on('select.editable-select', function (e, li) {
+			$('#currency_rate').val(li.data('value') || ''); // li.val() was rounded for some reason
+			$('#currency_rate').attr('rel', li.data('value') || 0);
+			$('#amount_to_send_label').text(li.attr('rel') || '?');
+			$("#amount_to_send").trigger("change");
+		});
+		$('#currency_rate').off('keydown');
+		$('#currency_rate').on('keyup', function(e) {
+			//$('#currency_rate').editableSelect('hide');
+			$('#currency_rate').attr('rel', e.target.value);
+			$('#amount_to_send_label').text('?');
+			updateUrlFragment();
+			updateAmount();
+			parseAdresses($('#bb_address').val());
+		});
+		if (!!parseFloat(settings.selected_currency)) {
+			$('input#currency_rate').val(settings.selected_currency);
+			updateUrlFragment();
+			updateAmount();
+			parseAdresses($('#bb_address').val());
 		}
 	}
 	// for parsing windows.location.search or windows.location.hash

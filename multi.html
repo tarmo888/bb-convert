@@ -11,7 +11,8 @@
 	<meta property="og:description" content="Tool for converting different currencies to Byteball amounts" />
 	<meta property="og:image"       content="https://tarmo888.github.io/bb-convert/bb-convert-multi.png" />
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha256-Md8eaeo67OiouuXAi8t/Xpd8t2+IaJezATVTWbZqSOw=" crossorigin="anonymous" />
-	<link rel="stylesheet" href="style.css?v5" />
+	<link rel="stylesheet" href="jquery-editable-select/dist/jquery-editable-select.min.css" />
+	<link rel="stylesheet" href="style.css?v6" />
 	<script>
 	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
 	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -41,9 +42,9 @@
 					</div>
 					<div class="input-group input-group-md mb-3 col-lg-3 col-md-6">
 						<div class="input-group-prepend">
-							<label class="input-group-text" for="currency_rate" title="close and re-open tab to refresh rates">Currency</label>
+							<label class="input-group-text" for="currency_rate" rel="" title="close and re-open tab to refresh rates">Currency</label>
 						</div>
-						<select class="form-control" id="currency_rate" title="close and re-open tab to refresh rates"><option value="0" rel="">-- choose currency --</option></select>
+						<select class="form-control" id="currency_rate" title="close and re-open tab to refresh rates"><option value="0" selected="selected">-- choose currency --</option></select>
 					</div>
 				</div>
 				<div class="row justify-content-center">
@@ -96,6 +97,7 @@
 							<div><span class="emoji">🔗</span> Uses <a href="https://github.com/twbs/bootstrap/tree/v4-dev" target="_blank">Twitter Bootstrap</a> for responsive grid layout and modals.</div>
 							<div><span class="emoji">🔗</span> Uses <a href="https://github.com/jquery/jquery" target="_blank">jQuery</a> to put everything working together.</div>
 							<div><span class="emoji">🔗</span> Uses <a href="https://github.com/jeromeetienne/jquery-qrcode" target="_blank">jQuery.qrcode by jeromeetienne</a> to generate QR codes.</div>
+							<div><span class="emoji">🔗</span> Uses <a href="https://github.com/indrimuska/jquery-editable-select" target="_blank">jquery-editable-select by indrimuska</a> for editable dropdown.</div>
 							<div><span class="emoji">🔗</span> Uses <a href="https://github.com/jackmoore/autosize" target="_blank">autosize by jackmoore</a> to change the size of textarea.</div>
 							<div><span class="emoji">🔗</span> Uses <a href="https://gist.github.com/aaronk6/d801d750f14ac31845e8" target="_blank">launchUri by aaronk6</a> to launch Byteball app from links.</div>
 							<div><span class="emoji">🔗</span> Uses <a href="https://github.com/tholman/github-corners" target="_blank">github-corners by tholman</a> for nice links to Github.</div>
@@ -111,6 +113,7 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha256-xaF9RpdtRxzwYMWg4ldJoyPWqyDPCRD0Cv7YEEe6Ie8=" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/4.0.2/autosize.min.js" integrity="sha256-dW8u4dvEKDThJpWRwLgGugbARnA3O2wqBcVerlg9LMc=" crossorigin="anonymous"></script>
-	<script src="script.js?v12"></script>
+	<script src="jquery-editable-select/dist/jquery-editable-select.min.js"></script>
+	<script src="script.js?v13"></script>
 </body>
 </html>
