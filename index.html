@@ -52,7 +52,7 @@
 						<div class="input-group-prepend d-none d-sm-flex align-text-top">
 							<label class="input-group-text" for="bb_address"><span class="align-self-start">Recipient</span></label>
 						</div>
-						<input class="form-control" type="text" id="bb_address" placeholder="Byteball address, steem/username or any e-mail" />
+						<input class="form-control" type="text" id="bb_address" placeholder="Byteball address, steem/username, @username or any e-mail" />
 					</div>
 				</div>
 				<div class="row justify-content-center">
@@ -115,6 +115,11 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js" integrity="sha256-9MzwK2kJKBmsJFdccXoIDDtsbWFh8bjYK/C7UjB1Ay0=" crossorigin="anonymous"></script>
 	<script src="jquery-editable-select/dist/jquery-editable-select.min.js"></script>
 	<script src="launch_uri/launch_uri.js"></script>
-	<script src="script.js?v13"></script>
+	<script src="script.js?v14"></script>
+	<script>
+	$(document).ready(function() {
+		loadRates({'selected_currency': '', 'asset': 'base', 'price_bytes': 1});
+	});
+	</script>
 </body>
 </html>
