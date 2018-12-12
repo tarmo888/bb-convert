@@ -324,6 +324,7 @@ function drawRates(rates) {
 		$('#currency_rate').attr('rel', li.data('value') || 0);
 		$('#amount_to_send_label').text(li.attr('rel') || '?');
 		$("#amount_to_send").trigger("change");
+		$("#currency_rate").trigger("change");
 	});
 	$('#currency_rate').off('keydown');
 	$('#currency_rate').on('keyup', function(e) {
@@ -383,7 +384,7 @@ function loadRates(defaults) {
 	if (typeof window.localStorage !== 'undefined') {
 		// saves selected currency in local storage for longer
 		var options = JSON.parse(localStorage.getItem(cache_key)) || defaults;
-		$('#currency_rate').on('change', function(e) {
+		$(document).on('change', '#currency_rate', function(e) {
 			options.selected_currency = $('#amount_to_send_label').text();
 			localStorage.setItem(cache_key, JSON.stringify(options));
 		});
