@@ -6,8 +6,14 @@ This is a stand-alone currency conversion tool for Byteball wallet, which suppor
 ## Pre-filling inputs
 It is possible to prefill form fields to request somebody to send, for example, 5 USD by sending them a [link like this](https://tarmo888.github.io/bb-convert/#amount=5&currency=USD&address=NTYO4ZKPRBPXW6WY2QUMJBPNDLOGX5OJ) (obviously with your own address). Just type in new values and it generates a new link on your browser address bar.
 
+## Blackbytes conversion
+Blackbytes are [private assets on Byteball](https://bitcointalk.org/index.php?topic=1574508). These assets are not send from wallet to wallet, but from device to device because only spender proof is posted on DAG, rest of the coins history is stored in added to file that can be sent to anyone else. This currency converter helps to calculate [exact amount from many currencies into blackbytes amounts](https://tarmo888.github.io/bb-convert/black.html#amount=1&currency=USD&address=). When clicking on Copy button (GBByte, MBByte, KBByte or BByte - depending what unit you have selected in your wallet app), it will copy the amount into your clipboard that can be pasted to wallet app.
+
 ## Custom currency rate
 If there is some currency missing from the list of currencies, but you know the rate then it is also possible to enter your own custom rate and it will create [link like this](https://tarmo888.github.io/bb-convert/#amount=5&currency=2500&address=).
+
+## Custom assets amount converter
+This currency conversion tool can also be used to convert custom asset amounts. There are 2 options for that, you either enter a [custom currency rate for your custom asset like this](https://tarmo888.github.io/bb-convert/custom.html#amount=1&currency=0.001&address=NTYO4ZKPRBPXW6WY2QUMJBPNDLOGX5OJ&asset=IYzTSjJg4I3hvUaRXrihRm9%2BmSEShenPK8l8uKUOD3o%3D) or if your custom asset is pegged to GBYTE then you could also let the users select, which 24 other currencies they want to convert, this can be done by adding with [`price_bytes` parameter in the URL](https://tarmo888.github.io/bb-convert/custom.html#amount=1&currency=USD&address=NTYO4ZKPRBPXW6WY2QUMJBPNDLOGX5OJ&asset=IYzTSjJg4I3hvUaRXrihRm9%2BmSEShenPK8l8uKUOD3o%3D&price_bytes=0.0001).
 
 ## QR code generator
 There is also a QR code generator on this tool that could be useful for seller, who can enter the number in their local currency and show the QR code to buyer. Just fill all fields correctly and `QR code for mobile wallet` link will appear under the calculated amounts.

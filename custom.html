@@ -5,11 +5,11 @@
 	<title>Currency converter for Byteball by tarmo888</title>
 	<meta name="viewport"           content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 	<meta name="format-detection"   content="telephone=no" />
-	<meta property="og:url"         content="https://tarmo888.github.io/bb-convert/multi.html" />
+	<meta property="og:url"         content="https://tarmo888.github.io/bb-convert/" />
 	<meta property="og:type"        content="website" />
 	<meta property="og:title"       content="Currency converter for Byteball" />
 	<meta property="og:description" content="Tool for converting different currencies to Byteball amounts" />
-	<meta property="og:image"       content="https://tarmo888.github.io/bb-convert/bb-convert-multi.png" />
+	<meta property="og:image"       content="https://tarmo888.github.io/bb-convert/bb-convert.png" />
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.min.css" integrity="sha256-Md8eaeo67OiouuXAi8t/Xpd8t2+IaJezATVTWbZqSOw=" crossorigin="anonymous" />
 	<link rel="stylesheet" href="jquery-editable-select/dist/jquery-editable-select.min.css" />
 	<link rel="stylesheet" href="style.css?v6" />
@@ -25,28 +25,36 @@
 <body>
 	<div id="web-container">
 		<div class="top-about fixed-top text-center col-12 col-xs-12 mt-2">
-			<a href="#" data-toggle="modal" data-target="#about-modal"><span class="emoji">ℹ️</span> About multi-address currency converter</a>
+			<a href="#" data-toggle="modal" data-target="#about-modal"><span class="emoji">ℹ️</span> About custom asset currency converter</a>
 		</div>
 		<a href="https://github.com/tarmo888/bb-convert" target="_blank" class="github-corner fixed-top" aria-label="View source on Github"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; left: 0; transform: scale(-1, 1);" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
 		<div class="jumbotron d-flex align-items-center">
 			<div class="container-fluid">
 				<div class="row justify-content-center">
 					<div class="mb-2">
-						<a href="./">native bytes</a> | <a href="./black.html">blackbytes</a> | multi-address | <a href="./custom.html">custom asset</a>
+						<a href="./">native bytes</a> | <a href="./black.html">blackbytes</a> | <a href="./multi.html">multi-address</a> | custom asset
 					</div>
 				</div>
 				<div class="row justify-content-center">
 					<div class="input-group input-group-md mb-3 col-xl-3 col-lg-5 col-md-5">
-						<input class="form-control" type="number" id="amount_to_send" min="0" placeholder="Total amount to send" />
+						<input class="form-control" type="number" id="amount_to_send" min="0" placeholder="Amount to send" />
 						<div class="input-group-append">
 							<label class="input-group-text" id="amount_to_send_label" for="amount_to_send">?</label>
 						</div>
 					</div>
 					<div class="input-group input-group-md mb-3 col-xl-4 col-lg-6 col-md-6">
 						<div class="input-group-prepend">
-							<label class="input-group-text" for="currency_rate" rel="" title="close and re-open tab to refresh rates">Currency rate</label>
+							<label class="input-group-text" for="currency_rate">Currency rate</label>
 						</div>
-						<select class="form-control" id="currency_rate" title="close and re-open tab to refresh rates"><option value="0" selected="selected">-- choose currency --</option></select>
+						<select class="form-control" id="currency_rate" rel="" title="close and re-open tab to refresh rates"></select>
+					</div>
+				</div>
+				<div class="row justify-content-center">
+					<div class="input-group input-group-md mb-3 col-xl-7 col-lg-11 col-md-11">
+						<div class="input-group-prepend d-none d-sm-flex align-text-top">
+							<label class="input-group-text" for="asset_id"><span class="align-self-start">Asset ID</span></label>
+						</div>
+						<input class="form-control" type="text" id="asset_id" placeholder="Asset ID" />
 					</div>
 				</div>
 				<div class="row justify-content-center">
@@ -54,24 +62,25 @@
 						<div class="input-group-prepend d-none d-sm-flex align-text-top">
 							<label class="input-group-text" for="bb_address"><span class="align-self-start">Recipient</span></label>
 						</div>
-						<textarea class="form-control" id="bb_address" rows="3" placeholder="multiple Byteball addresses (each address on new line)"></textarea>
-						<div class="input-group-append d-none d-sm-flex align-text-top">
-							<label class="input-group-text" for="bb_address"><span class="align-self-start">Addresses</span></label>
-						</div>
+						<input class="form-control" type="text" id="bb_address" placeholder="Byteball address, steem/username, @username or any e-mail" />
 					</div>
 				</div>
 				<div class="row justify-content-center">
-					<div class="input-group input-group-md mb-3 col-xl-7 col-lg-11 col-md-11">
-						<button class="btn btn-primary col m-1 copy-multi" role="button" href="#" rel="gbyte">copy GByte</a>
-						<button class="btn btn-primary col m-1 copy-multi" role="button" href="#" rel="mbyte">copy MByte</a>
-						<button class="btn btn-primary col m-1 copy-multi" role="button" href="#" rel="kbyte">copy KByte</a>
-						<button class="btn btn-primary col m-1 copy-multi" role="button" href="#" rel="byte">copy Byte</a>
+					<div class="input-group input-group-md mb-3 col-xl-3 col-lg-6 col-md-6">
+						<a class="btn btn-primary col-xl-12" role="button" id="send-button" href="https://byteball.org/#download">send with Byteball wallet</a>
 					</div>
 				</div>
 				<div class="row text-center">
-					<div class="col-12 mb-3" id="parse-results"></div>
 					<div class="col-12 mb-3" id="conversion"></div>
 				</div>
+			</div>
+		</div>
+	</div>
+	<!-- QR code modal -->
+	<div class="modal" id="qr-modal">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal-body text-center"></div>
 			</div>
 		</div>
 	</div>
@@ -80,17 +89,16 @@
 		<div class="modal-dialog modal-lg modal-dialog-centered" role="document">
 			<div class="modal-content">
 				<div class="modal-header">
-					<h5 class="modal-title">About multi-address currency converter</h5>
+					<h5 class="modal-title">About custom asset currency converter</h5>
 					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
 					<span aria-hidden="true">&times;</span>
 					</button>
 				</div>
 				<div class="modal-body">
 					<div class="mb-4">
-						<p>This tool lets users enter the total amount they want to send and all the addresses they want to send to.</p>
-						<p>By default, it will split the total amount equally (un-equally if some addresses appear multiple times) between the addresses and will generate the address list with amounts, which are compatible to be pasted into Byteball wallet.</p>
-						<p>It also accepts any other 2 column (comma separated address and amount) lists in case user wants to add weight to some addresses, so these would get proportionally bigger amount.</p>
-						<p>When clicking on Copy button (GByte, MByte, KByte or Byte - depending what unit you have selected in your wallet app), it will generate a new list into your clipboard that can be pasted to wallet app.</p>
+						<p>With this tool, you can calculate many fiat (government issued) currency amounts into Byteball custom asset amounts, including different Byteball own amounts (GByte, MByte, KByte and Byte).</p>
+						<p>For example, you can send 5 US dollars (or 5 euros) worth of customer asset to other users by simply filling some fields and clicking the "send with Byteball wallet" button, which would automatically open your Byteball wallet app waiting to be confirmed to send right amount of that custom asset.</p>
+						<p>It could also be used to request $5 worth of custom asset by sending a link of automatically filled form to somebody or showing somebody a QR code that gets generated when the form is correctly filled (Byteball wallet app has QR code reader built in).</p>
 					</div>
 					<h5>Thanks</h5>
 					<div class="row">
@@ -98,26 +106,31 @@
 							<div><span class="emoji">🔗</span> Uses <a href="https://min-api.cryptocompare.com/" target="_blank">CryptoCompare API</a> for currency rates.</div>
 							<div><span class="emoji">🔗</span> Uses <a href="https://github.com/twbs/bootstrap/tree/v4-dev" target="_blank">Twitter Bootstrap</a> for responsive grid layout and modals.</div>
 							<div><span class="emoji">🔗</span> Uses <a href="https://github.com/jquery/jquery" target="_blank">jQuery</a> to put everything working together.</div>
+							<div><span class="emoji">🔗</span> Uses <a href="https://github.com/jeromeetienne/jquery-qrcode" target="_blank">jQuery.qrcode by jeromeetienne</a> to generate QR codes.</div>
 							<div><span class="emoji">🔗</span> Uses <a href="https://github.com/indrimuska/jquery-editable-select" target="_blank">jquery-editable-select by indrimuska</a> for editable dropdown.</div>
-							<div><span class="emoji">🔗</span> Uses <a href="https://github.com/jackmoore/autosize" target="_blank">autosize by jackmoore</a> to change the size of textarea.</div>
+							<div><span class="emoji">🔗</span> Uses <a href="https://gist.github.com/aaronk6/d801d750f14ac31845e8" target="_blank">launchUri by aaronk6</a> to launch Byteball app from links.</div>
 							<div><span class="emoji">🔗</span> Uses <a href="https://github.com/tholman/github-corners" target="_blank">github-corners by tholman</a> for nice links to Github.</div>
+							<div><span class="emoji">🔗</span> Uses <a href="https://github.com/afeld/jsonp" target="_blank">jsonp by afeld</a> to proxy http API requests.</div>
 						</div>
 					</div>
 				</div>
 				<div class="modal-footer">
-					<a class="btn btn-secondary w-100 text-truncate" href="./#amount=5&amp;currency=USD&amp;address=NTYO4ZKPRBPXW6WY2QUMJBPNDLOGX5OJ">donate $5 worth of bytes to author of this tool</a>
+					<a class="btn btn-secondary w-100 text-truncate" id="donate" href="./#amount=5&amp;currency=USD&amp;address=NTYO4ZKPRBPXW6WY2QUMJBPNDLOGX5OJ">donate $5 worth of bytes to author of this tool</a>
 				</div>
 			</div>
 		</div>
 	</div>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/js/bootstrap.min.js" integrity="sha256-xaF9RpdtRxzwYMWg4ldJoyPWqyDPCRD0Cv7YEEe6Ie8=" crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/autosize.js/4.0.2/autosize.min.js" integrity="sha256-dW8u4dvEKDThJpWRwLgGugbARnA3O2wqBcVerlg9LMc=" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js" integrity="sha256-9MzwK2kJKBmsJFdccXoIDDtsbWFh8bjYK/C7UjB1Ay0=" crossorigin="anonymous"></script>
 	<script src="jquery-editable-select/dist/jquery-editable-select.min.js"></script>
+	<script src="launch_uri/launch_uri.js"></script>
 	<script src="script.js?v16"></script>
 	<script>
 	$(document).ready(function() {
-		loadRates({'asset': 'base', 'price_bytes': 1});
+		var params = parseParams(window.location.hash);
+		var price_bytes = parseFloat(params.price_bytes) ? parseFloat(params.price_bytes) : 0;
+		loadRates({'price_bytes': price_bytes});
 	});
 	</script>
 </body>

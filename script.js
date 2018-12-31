@@ -3,13 +3,19 @@ $(document).ready(function() {
 		autosize($('#bb_address'));
 	}
 	// update when amount or address typed in or pasted in
-	$('#amount_to_send, #bb_address').on('keyup', function(e) {
+	$('#amount_to_send, #bb_address, #asset_id').on('keyup', function(e) {
+		if ($('#asset_id').length) {
+			settings.asset = $('#asset_id').val();
+		}
 		updateUrlFragment();
 		updateAmount();
 		parseAdresses($('#bb_address').val());
 	});
-	// update when amount increased with native controls or currency dropdown value change
-	$('#amount_to_send, #bb_address').on('change', function(e) {
+	// update when amount increased with native controls or updated from url
+	$('#amount_to_send, #bb_address, #asset_id').on('change', function(e) {
+		if ($('#asset_id').length) {
+			settings.asset = $('#asset_id').val();
+		}
 		updateUrlFragment();
 		updateAmount();
 		parseAdresses($('#bb_address').val());
@@ -21,12 +27,16 @@ $(document).ready(function() {
 		updateAmount();
 		parseAdresses($('#bb_address').val());
 	});
-	// regular send button
+	// donate button with pre-filled inputs
+	$('#donate').on('click', function(e) {
+		window.location.reload();
+	});
+	// send button
 	$('#send-button').on('click', function(e) {
 		e.preventDefault();
 		updateUrlFragment();
 		var launch_data = updateAmount();
-		if (launch_data) {
+		if (launch_data.all_ok) {
 			if ( !isValidAddress($('#bb_address').val()) ) {
 				if (typeof ga === 'function') {
 					ga('send', 'event', 'send-button', 'invalid', $('#amount_to_send_label').text());
@@ -39,8 +49,9 @@ $(document).ready(function() {
 					ga('send', 'event', 'send-button', 'success', $('#amount_to_send_label').text());
 				}
 			}, function () {
-				alert('Unable to launch Byteball wallet.\nClick OK to redirect to download page.');
-				window.location = $(e.target).attr('href');
+				if (confirm('Unable to launch the wallet.\nClick OK to redirect to download page.')) {
+					window.location = $(e.target).attr('href');
+				}
 				if (typeof ga === 'function') {
 					ga('send', 'event', 'send-button', 'fail', $('#amount_to_send_label').text());
 				}
@@ -57,14 +68,47 @@ $(document).ready(function() {
 			alert('Please fill all fields!');
 		}
 	});
-	// donate button with pre-filled inputs
-	$('#donate').on('click', function(e) {
-		window.location.reload();
+	$('.copy-blackbytes').on('click', function(e) {
+		e.preventDefault();
+		var launch_data = updateAmount();
+		if (launch_data.blackbytes_ok) {
+			var amount = launch_data.amounts[$(e.target).attr('rel')];
+			var fixed = launch_data.fixed[$(e.target).attr('rel')];
+			var fixed_amount = amount.toFixed(fixed);
+			// copy to clipboard
+			var copyText = document.createElement("textarea");
+			copyText.textContent = fixed_amount;
+			copyText.style.position = "fixed";  // Prevent scrolling to bottom of page in MS Edge.
+			document.body.appendChild(copyText);
+			copyText.select();
+			try {
+				document.execCommand("copy");
+				if (typeof ga === 'function') {
+					ga('send', 'event', 'sendblackbytes-button', 'success', $('#amount_to_send_label').text());
+				}
+				alert('Amount is copied to your clipboard!\nPaste it to your wallet.');
+			}
+			catch (err) {
+				if (typeof ga === 'function') {
+					ga('send', 'event', 'sendblackbytes-button', 'fail', $('#amount_to_send_label').text());
+				}
+				alert('Coping failed!');
+			}
+			finally {
+				document.body.removeChild(copyText);
+			}
+		}
+		else {
+			if (typeof ga === 'function') {
+				ga('send', 'event', 'sendblackbytes-button', 'fill-fields');
+			}
+			alert('Please fill all fields!');
+		}
 	});
 	$('.copy-multi').on('click', function(e) {
 		e.preventDefault();
 		var launch_data = updateAmount();
-		if (launch_data) {
+		if (launch_data.all_ok) {
 			// parse addresses
 			var parsed = parseAdresses($('#bb_address').val());
 			// count valid unique addresses
@@ -191,68 +235,75 @@ function updateAmount() {
 	var currency_rate = parseFloat($('#currency_rate').attr('rel'));
 	var bb_address = $('#bb_address').val();
 	var amounts = {};
-	var fixed = {'gbyte': 9, 'mbyte': 6, 'kbyte': 3, 'byte': 0};
+	var fixed = {'gbyte': 9, 'mbyte': 6, 'kbyte': 3, 'byte': 0, 'native': 0};
 	if (currency_rate) {
 		$('#conversion').html('');
 		if (amount_to_send) {
-			amounts['gbyte'] = (amount_to_send/currency_rate);
-			amounts['mbyte'] = (amount_to_send/currency_rate*1e3);
-			amounts['kbyte'] = (amount_to_send/currency_rate*1e6);
-			amounts['byte'] = (amount_to_send/currency_rate*1e9);
-			$('#conversion').append('<div>'+ amounts['gbyte'].toFixed(fixed['gbyte']) +' '+ (settings.asset != 'base' ? 'GBByte' : 'GByte') +'</div>');
-			$('#conversion').append('<div>'+ amounts['mbyte'].toFixed(fixed['mbyte']) +' '+ (settings.asset != 'base' ? 'MBByte' : 'MByte') +'</div>');
-			$('#conversion').append('<div>'+ amounts['kbyte'].toFixed(fixed['kbyte']) +' '+ (settings.asset != 'base' ? 'KBByte' : 'KByte') +'</div>');
-			$('#conversion').append('<div>'+ amounts['byte'].toFixed(fixed['byte']) +' '+ (settings.asset != 'base' ? 'BByte' : 'Byte') +'</div>');
+			if (settings.asset != 'base' && settings.asset != 'qO2JsiuDMh/j+pqJYZw3u82O71WjCDf0vTNvsnntr8o=' && settings.asset != 'LUQu5ik4WLfCrr8OwXezqBa+i3IlZLqxj2itQZQm8WY=') {
+				amounts['native'] = (amount_to_send/currency_rate);
+				$('#conversion').append('<div>Amount: '+ amounts['native'].toFixed(fixed['native']) +'</div>');
+			}
+			else {
+				amounts['gbyte'] = (amount_to_send/currency_rate);
+				amounts['mbyte'] = (amount_to_send/currency_rate*1e3);
+				amounts['kbyte'] = (amount_to_send/currency_rate*1e6);
+				amounts['byte'] = (amount_to_send/currency_rate*1e9);
+				amounts['native'] = amounts['byte'];
+				$('#conversion').append('<div>'+ amounts['gbyte'].toFixed(fixed['gbyte']) +' '+ (settings.asset != 'base' ? 'GBByte' : 'GByte') +'</div>');
+				$('#conversion').append('<div>'+ amounts['mbyte'].toFixed(fixed['mbyte']) +' '+ (settings.asset != 'base' ? 'MBByte' : 'MByte') +'</div>');
+				$('#conversion').append('<div>'+ amounts['kbyte'].toFixed(fixed['kbyte']) +' '+ (settings.asset != 'base' ? 'KBByte' : 'KByte') +'</div>');
+				$('#conversion').append('<div>'+ amounts['byte'].toFixed(fixed['byte']) +' '+ (settings.asset != 'base' ? 'BByte' : 'Byte') +'</div>');
+			}
 		}
 	}
 	else {
 		$('#conversion').html('');
 	}
 	// wallet GUI multi-send total amount has bug that doesn't allow thousands with some regional settings
-	var regional_bug = 'Byteball wallet v2.2.0 has a bug that will not allow to send over 1000 of any unit with some regional settings.';
-	if (amounts['gbyte'] >= 1000) {
-		$('button[rel="gbyte"].copy-multi').attr('title', regional_bug);
+	var regional_bug = 'Wallet v2.2.0 has a bug that will not allow to send over 1000 of any unit with some regional settings.';
+	if (amounts['gbyte'] && amounts['gbyte'] >= 1000) {
+		$('button[rel="gbyte"]').attr('title', regional_bug);
 	}
 	else {
-		$('button[rel="gbyte"].copy-multi').removeAttr('title');
+		$('button[rel="gbyte"]').removeAttr('title');
 	}
-	if (amounts['mbyte'] >= 1000) {
-		$('button[rel="mbyte"].copy-multi').attr('title', regional_bug);
-	}
-	else {
-		$('button[rel="mbyte"].copy-multi').removeAttr('title');
-	}
-	if (amounts['kbyte'] >= 1000) {
-		$('button[rel="kbyte"].copy-multi').attr('title', regional_bug);
+	if (amounts['mbyte'] && amounts['mbyte'] >= 1000) {
+		$('button[rel="mbyte"]').attr('title', regional_bug);
 	}
 	else {
-		$('button[rel="kbyte"].copy-multi').removeAttr('title');
+		$('button[rel="mbyte"]').removeAttr('title');
 	}
-	if (amounts['byte'] >= 1000) {
-		$('button[rel="byte"].copy-multi').attr('title', regional_bug);
+	if (amounts['kbyte'] && amounts['kbyte'] >= 1000) {
+		$('button[rel="kbyte"]').attr('title', regional_bug);
 	}
 	else {
-		$('button[rel="byte"].copy-multi').removeAttr('title');
+		$('button[rel="kbyte"]').removeAttr('title');
 	}
-	if (!amount_to_send || !currency_rate || !bb_address) {
-		return false;
+	if (amounts['byte'] && amounts['byte'] >= 1000) {
+		$('button[rel="byte"]').attr('title', regional_bug);
 	}
-	var bb_amount = (amount_to_send/currency_rate*1e9).toFixed(0);
+	else {
+		$('button[rel="byte"]').removeAttr('title');
+	}
+	if (amount_to_send && currency_rate && !bb_address) {
+		return {'all_ok': false, 'blackbytes_ok': true, 'launch_uri': '', 'amounts': amounts, 'fixed': fixed};
+	}
+	else if (!amount_to_send || !currency_rate || !bb_address || !settings.asset) {
+		return {'all_ok': false, 'blackbytes_ok': false, 'launch_uri': '', 'amounts': amounts, 'fixed': fixed};
+	}
+	var bb_amount = amounts['native'].toFixed(fixed['native']);
 	var params = parseParams(window.location.hash);
-	var launch_uri = 'byteball:'+ encodeURIComponent(bb_address) +'?amount='+ bb_amount+'&asset='+ (settings.asset != 'base' ? encodeURIComponent(settings.asset) : 'base');
-	if (params.testnet) {
-		launch_uri = 'byteball-tn:'+ encodeURIComponent(bb_address) +'?amount='+ bb_amount+'?asset='+ (settings.asset != 'base' ? encodeURIComponent('LUQu5ik4WLfCrr8OwXezqBa+i3IlZLqxj2itQZQm8WY=') : 'base');
-	}
+	var launch_uri = (params.testnet ? 'byteball-tn:' : 'byteball:') + encodeURIComponent(bb_address) +'?amount='+ bb_amount +'&asset='+ (settings.asset != 'base' ? encodeURIComponent(settings.asset) : 'base');
 	if ( typeof $.prototype.qrcode !== 'undefined' && isValidAddress(bb_address) ) {
 		$('#conversion').append('<div class="mt-2"><a id="qr-opener" href="'+ launch_uri +'" data-toggle="modal" data-target="#qr-modal">QR code for mobile wallet</a></div>');
 	}
 
-	return {'launch_uri': launch_uri, 'amounts': amounts, 'fixed': fixed};
+	return {'all_ok': true, 'blackbytes_ok': true, 'launch_uri': launch_uri, 'amounts': amounts, 'fixed': fixed};
 }
 // updates URL fragment based on input values
 function updateUrlFragment() {
 	if (typeof history.replaceState !== 'undefined') {
-		if ( parseFloat($('#amount_to_send').val()) || parseFloat($('#currency_rate').attr('rel')) || $('#bb_address').val() ) {
+		if ( parseFloat($('#amount_to_send').val()) || parseFloat($('#currency_rate').attr('rel')) || $('#asset_id').length || $('#bb_address').val() ) {
 			var params = parseParams(window.location.hash);
 			var addresses = $('#bb_address').val().split('\n');
 			var new_addresses = [];
@@ -260,8 +311,9 @@ function updateUrlFragment() {
 			$.each(addresses, function(key, value) {
 				new_addresses.push(value.split(/[ \t,]+/).join(','));
 			});
+			var custom_asset = $('#asset_id').length && settings.asset != 'base' && settings.asset != 'qO2JsiuDMh/j+pqJYZw3u82O71WjCDf0vTNvsnntr8o=' && settings.asset != 'LUQu5ik4WLfCrr8OwXezqBa+i3IlZLqxj2itQZQm8WY=';
 			var currency = !!parseFloat($('#currency_rate').attr('rel')) && $('#amount_to_send_label').text() == '?' ? parseFloat($('#currency_rate').attr('rel')) : $('#amount_to_send_label').text();
-			var fragment = '#amount='+ ($('#amount_to_send').val() ? parseFloat($('#amount_to_send').val()) : '') +'&currency='+ currency + '&address='+ new_addresses.join(';') + (params.testnet ? '&testnet=1' : '');
+			var fragment = '#amount='+ ($('#amount_to_send').val() ? parseFloat($('#amount_to_send').val()) : '') +'&currency='+ currency + '&address='+ new_addresses.join(';') + (params.testnet ? '&testnet=1' : '') + (custom_asset ? '&asset='+ encodeURIComponent(settings.asset) : '') + ($('#asset_id').length ? '&price_bytes='+ parseFloat(settings.price_bytes) : '');
 			history.replaceState(null, null, fragment);
 		}
 		else {
@@ -272,20 +324,22 @@ function updateUrlFragment() {
 // fills currency dropdown and pre-fills inputs
 function drawRates(rates) {
 	// currency rates loop
+	var rates = rates || [];
 	for (i in rates) {
-		$('#currency_rate').append('<option value="'+ (rates[i] / settings.price_bytes) +'" data-value="'+ (rates[i] / settings.price_bytes) +'" rel="'+ i +'">'+ i +' ('+ (rates[i] / settings.price_bytes).toLocaleString() +' = '+ (settings.asset != 'base' ? 'GBByte' : 'GByte') +')</option>');
+		$('#currency_rate').append('<option value="'+ (rates[i]*settings.price_bytes) +'" data-value="'+ (rates[i]*settings.price_bytes) +'" rel="'+ i +'">'+ i +' ('+ (rates[i]*settings.price_bytes).toLocaleString() +' = '+ (settings.asset != 'base' ? 'GBByte' : 'GByte') +')</option>');
 	}
-	if (settings.asset != 'base') {
-		$('#currency_rate').append('<option value="'+ (1 / settings.price_bytes) +'" data-value="'+ (1 / settings.price_bytes) +'" rel="GByte">GByte ('+ (1 / settings.price_bytes).toLocaleString() +' = '+ (settings.asset != 'base' ? 'GBByte' : 'GByte') +')</option>');
-		$('#currency_rate').append('<option value="'+ (1000 / settings.price_bytes)  +'" data-value="'+ (1000 / settings.price_bytes)  +'" rel="MByte">MByte ('+ (1000 / settings.price_bytes).toLocaleString() +' = '+ (settings.asset != 'base' ? 'GBByte' : 'GByte') +')</option>');
-		$('#currency_rate').append('<option value="'+ (1000000 / settings.price_bytes) +'" data-value="'+ (1000000 / settings.price_bytes) +'" rel="KByte">KByte ('+ (1000000 / settings.price_bytes).toLocaleString() +' = '+ (settings.asset != 'base' ? 'GBByte' : 'GByte') +')</option>');
-		$('#currency_rate').append('<option value="'+ (1000000000 / settings.price_bytes) +'" data-value="'+ (1000000000 / settings.price_bytes) +'" rel="Byte">Byte ('+ (1000000000 / settings.price_bytes).toLocaleString() +' = '+ (settings.asset != 'base' ? 'GBByte' : 'GByte') +')</option>');
+	if (settings.price_bytes) {
+		if (settings.asset != 'base' && settings.price_bytes) {
+			$('#currency_rate').append('<option value="'+ (1*settings.price_bytes) +'" data-value="'+ (1*settings.price_bytes) +'" rel="GByte">GByte ('+ (1*settings.price_bytes).toLocaleString() +' = '+ (settings.asset != 'base' ? 'GBByte' : 'GByte') +')</option>');
+			$('#currency_rate').append('<option value="'+ (1000*settings.price_bytes)  +'" data-value="'+ (1000*settings.price_bytes)  +'" rel="MByte">MByte ('+ (1000*settings.price_bytes).toLocaleString() +' = '+ (settings.asset != 'base' ? 'GBByte' : 'GByte') +')</option>');
+			$('#currency_rate').append('<option value="'+ (1000000*settings.price_bytes) +'" data-value="'+ (1000000*settings.price_bytes) +'" rel="KByte">KByte ('+ (1000000*settings.price_bytes).toLocaleString() +' = '+ (settings.asset != 'base' ? 'GBByte' : 'GByte') +')</option>');
+			$('#currency_rate').append('<option value="'+ (1000000000*settings.price_bytes) +'" data-value="'+ (1000000000*settings.price_bytes) +'" rel="Byte">Byte ('+ (1000000000*settings.price_bytes).toLocaleString() +' = '+ (settings.asset != 'base' ? 'GBByte' : 'GByte') +')</option>');
+		}
+		$('#currency_rate').append('<option value="'+ (1) +'" data-value="'+ (1) +'" rel="'+ (settings.asset != 'base' ? 'GBByte' : 'GByte') +'">'+ (settings.asset != 'base' ? 'GBByte' : 'GByte') +' ('+ (1).toLocaleString() +' = '+ (settings.asset != 'base' ? 'GBByte' : 'GByte') +')</option>');
+		$('#currency_rate').append('<option value="'+ (1000) +'" data-value="'+ (1000) +'" rel="'+ (settings.asset != 'base' ? 'MBByte' : 'MByte') +'">'+ (settings.asset != 'base' ? 'MBByte' : 'MByte') +' ('+ (1000).toLocaleString() +' = '+ (settings.asset != 'base' ? 'GBByte' : 'GByte') +')</option>');
+		$('#currency_rate').append('<option value="'+ (1000000) +'" data-value="'+ (1000000) +'" rel="'+ (settings.asset != 'base' ? 'KBByte' : 'KByte') +'">'+ (settings.asset != 'base' ? 'KBByte' : 'KByte') +' ('+ (1000000).toLocaleString() +' = '+ (settings.asset != 'base' ? 'GBByte' : 'GByte') +')</option>');
+		$('#currency_rate').append('<option value="'+ (1000000000) +'" data-value="'+ (1000000000) +'" rel="'+ (settings.asset != 'base' ? 'BByte' : 'Byte') +'">'+ (settings.asset != 'base' ? 'BByte' : 'Byte') +' ('+ (1000000000).toLocaleString() +' = '+ (settings.asset != 'base' ? 'GBByte' : 'GByte') +')</option>');
 	}
-
-	$('#currency_rate').append('<option value="'+ (1) +'" data-value="'+ (1) +'" rel="'+ (settings.asset != 'base' ? 'GBByte' : 'GByte') +'">'+ (settings.asset != 'base' ? 'GBByte' : 'GByte') +' ('+ (1).toLocaleString() +' = '+ (settings.asset != 'base' ? 'GBByte' : 'GByte') +')</option>');
-	$('#currency_rate').append('<option value="'+ (1000) +'" data-value="'+ (1000) +'" rel="'+ (settings.asset != 'base' ? 'MBByte' : 'MByte') +'">'+ (settings.asset != 'base' ? 'MBByte' : 'MByte') +' ('+ (1000).toLocaleString() +' = '+ (settings.asset != 'base' ? 'GBByte' : 'GByte') +')</option>');
-	$('#currency_rate').append('<option value="'+ (1000000) +'" data-value="'+ (1000000) +'" rel="'+ (settings.asset != 'base' ? 'KBByte' : 'KByte') +'">'+ (settings.asset != 'base' ? 'KBByte' : 'KByte') +' ('+ (1000000).toLocaleString() +' = '+ (settings.asset != 'base' ? 'GBByte' : 'GByte') +')</option>');
-	$('#currency_rate').append('<option value="'+ (1000000000) +'" data-value="'+ (1000000000) +'" rel="'+ (settings.asset != 'base' ? 'BByte' : 'Byte') +'">'+ (settings.asset != 'base' ? 'BByte' : 'Byte') +' ('+ (1000000000).toLocaleString() +' = '+ (settings.asset != 'base' ? 'GBByte' : 'GByte') +')</option>');
 	var params = parseParams(window.location.hash);
 	// pre-fill amount from URL fragment
 	if (params.amount) {
@@ -294,6 +348,15 @@ function drawRates(rates) {
 	}
 	if (params.currency) {
 		settings.selected_currency = params.currency;
+	}
+	if (settings.asset && $('#asset_id').length) {
+		$('#asset_id').val(settings.asset);
+		updateUrlFragment();
+	}
+	else if (params.asset) {
+		settings.asset = decodeURIComponent(params.asset);
+		$('#asset_id').val(settings.asset);
+		updateUrlFragment();
 	}
 	// pre-select currency from dropdown (either from last use or from URL fragment)
 	if (settings.selected_currency && $("#currency_rate option[rel='"+ settings.selected_currency +"']").length) {
@@ -319,14 +382,16 @@ function drawRates(rates) {
 		}
 		$("#bb_address").trigger("change");
 	}
-	$('#currency_rate').editableSelect({ filter: false, effects: 'slide' }).on('select.editable-select', function (e, li) {
-		$('#currency_rate').val(li.data('value') || ''); // li.val() was rounded for some reason
-		$('#currency_rate').attr('rel', li.data('value') || 0);
-		$('#amount_to_send_label').text(li.attr('rel') || '?');
-		$("#amount_to_send").trigger("change");
-		$("#currency_rate").trigger("change");
-	});
-	$('#currency_rate').off('keydown');
+	if (typeof window.EditableSelect !== 'undefined') {
+		$('#currency_rate').editableSelect({ filter: false, effects: 'slide' }).on('select.editable-select', function (e, li) {
+			$('#currency_rate').val(li.data('value') || ''); // li.val() was rounded for some reason
+			$('#currency_rate').attr('rel', li.data('value') || 0);
+			$('#amount_to_send_label').text(li.attr('rel') || '?');
+			$("#amount_to_send").trigger("change");
+			$("#currency_rate").trigger("change");
+		});
+		$('#currency_rate').off('keydown');
+	}
 	$('#currency_rate').on('keyup', function(e) {
 		//$('#currency_rate').editableSelect('hide');
 		$('#currency_rate').attr('rel', e.target.value);
@@ -383,14 +448,20 @@ function loadRates(defaults) {
 	var cache_key = utf8_to_b64(url);
 	if (typeof window.localStorage !== 'undefined') {
 		// saves selected currency in local storage for longer
-		var options = JSON.parse(localStorage.getItem(cache_key)) || defaults;
-		$(document).on('change', '#currency_rate', function(e) {
+		var options = JSON.parse(localStorage.getItem(cache_key)) || {};
+		$(document).on('change', '#currency_rate, #asset_id', function(e) {
 			options.selected_currency = $('#amount_to_send_label').text();
+			if ($('#asset_id').length) {
+				options.asset =  $('#asset_id').val();
+			}
 			localStorage.setItem(cache_key, JSON.stringify(options));
 		});
 	}
-	window.settings = $.extend({}, defaults, options);
-	if (typeof window.sessionStorage !== 'undefined') {
+	window.settings = $.extend({}, defaults, options, defaults);
+	if (!window.settings.price_bytes) {
+		drawRates();
+	}
+	else if (typeof window.sessionStorage !== 'undefined') {
 		// keeps cached in session storage for reloading the page, clears cache on closing the tab
 		var cached_rates = JSON.parse(sessionStorage.getItem(cache_key));
 		if (cached_rates) {
