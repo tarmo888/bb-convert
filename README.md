@@ -1,5 +1,5 @@
-# Currency converter for Obyte (formerly Byteball)
-This is a stand-alone currency conversion tool for Obyte wallet, which supports converting 24 different currencies (including USD, EUR, BTC & ETH) into GByte, MByte, KByte and Byte amounts and if Obyte wallet is already installed then it opens the wallet where user can simply click Send to initiate the payment. This tool solves the problem that Obyte wallet doesn't have a built-in currency conversion tool for sending amount values other than native currency.
+# Currency converter for O<sub>byte</sub> (formerly Byteball)
+This is a stand-alone currency conversion tool for O<sub>byte</sub> wallet, which supports converting 24 different currencies (including USD, EUR, BTC & ETH) into GByte, MByte, KByte and Byte amounts and if Obyte wallet is already installed then it opens the wallet where user can simply click Send to initiate the payment. This tool solves the problem that Obyte wallet doesn't have a built-in currency conversion tool for sending amount values other than native currency.
 
 [![Screenshot](bb-convert.png)](https://tarmo888.github.io/bb-convert/)
 
