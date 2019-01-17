@@ -417,7 +417,7 @@ function parseParams(params) {
 	});
 	return param_list;
 }
-// simple validation without checksum check https://github.com/byteball/byteballcore/blob/master/validation_utils.js
+// simple validation without checksum check https://github.com/byteball/ocore/blob/master/validation_utils.js
 function isValidAddress(str, multi) {
 	if (typeof str !== "string") {
 		return false;
