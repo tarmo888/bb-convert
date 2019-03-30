@@ -27,6 +27,12 @@ $(document).ready(function() {
 		updateAmount();
 		parseAdresses($('#bb_address').val());
 	});
+	// donate button with pre-filled inputs
+	$('#donate').on('click', function(e) {
+		setTimeout(function(){
+			window.location.reload();
+		}, 100);
+	});
 	// send button
 	$('#send-button').on('click', function(e) {
 		e.preventDefault();
