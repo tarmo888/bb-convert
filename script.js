@@ -19,13 +19,6 @@ $(document).ready(function() {
 		updateUrlFragment();
 		updateAmount();
 		parseAdresses($('#bb_address').val());
-	})
-	$('#currency_rate').on('change', function(e) {
-		$('#amount_to_send_label').text(($("#currency_rate option:selected").attr('rel') || '?'));
-		$('#currency_rate').attr('rel', $('#currency_rate').val());
-		updateUrlFragment();
-		updateAmount();
-		parseAdresses($('#bb_address').val());
 	});
 	// donate button with pre-filled inputs
 	$('#donate').on('click', function(e) {
@@ -315,7 +308,7 @@ function updateUrlFragment() {
 			});
 			var custom_asset = $('#asset_id').length && settings.asset != 'base' && settings.asset != 'qO2JsiuDMh/j+pqJYZw3u82O71WjCDf0vTNvsnntr8o=' && settings.asset != 'LUQu5ik4WLfCrr8OwXezqBa+i3IlZLqxj2itQZQm8WY=';
 			var currency = !!parseFloat($('#currency_rate').attr('rel')) && $('#amount_to_send_label').text() == '?' ? parseFloat($('#currency_rate').attr('rel')) : $('#amount_to_send_label').text();
-			var fragment = '#amount='+ ($('#amount_to_send').val() ? parseFloat($('#amount_to_send').val()) : '') +'&currency='+ currency + '&address='+ new_addresses.join(';') + (params.testnet ? '&testnet=1' : '') + (custom_asset ? '&asset='+ encodeURIComponent(settings.asset) : '') + ($('#asset_id').length ? '&price_bytes='+ parseFloat(settings.price_bytes) : '');
+			var fragment = '#amount='+ ($('#amount_to_send').val() ? parseFloat($('#amount_to_send').val()) : '') +'&currency='+ currency + '&address='+ new_addresses.join(';') + (params.testnet ? '&testnet=1' : '') + ((custom_asset && settings.asset) ? '&asset='+ encodeURIComponent(settings.asset) : '') + ($('#asset_id').length ? '&price_bytes='+ parseFloat(settings.price_bytes) : '');
 			history.replaceState(null, null, fragment);
 		}
 		else {
@@ -346,27 +339,46 @@ function drawRates(rates) {
 	// pre-fill amount from URL fragment
 	if (params.amount) {
 		$('#amount_to_send').val(parseFloat(params.amount));
-		$("#amount_to_send").trigger("change");
+		$('#amount_to_send').trigger('change');
 	}
 	if (params.currency) {
 		settings.selected_currency = params.currency;
 	}
-	if (settings.asset && $('#asset_id').length) {
+	if (settings.asset && $('#asset_id').length && !$('#asset_id option').length) {
 		$('#asset_id').val(settings.asset);
 		updateUrlFragment();
 	}
 	else if (params.asset) {
 		settings.asset = decodeURIComponent(params.asset);
-		$('#asset_id').val(settings.asset);
-		updateUrlFragment();
+		$('#asset_id option').removeAttr('selected');
+		if ($('#asset_id option[rel="'+ settings.asset +'"], #asset_id option[value="'+ settings.asset +'"]').length) {
+			$('#asset_id option[rel="'+ settings.asset +'"], #asset_id option[value="'+ settings.asset +'"]').attr('selected', 'selected');
+		}
+		else {
+			$('#asset_id').val(settings.asset);
+		}
+		$('#asset_id').attr('rel', settings.asset);
+		$('#asset_id').trigger('change');
 	}
-	// pre-select currency from dropdown (either from last use or from URL fragment)
-	if (settings.selected_currency && $("#currency_rate option[rel='"+ settings.selected_currency +"']").length) {
-		$("#currency_rate option").removeAttr("selected");
-		$("#currency_rate option[rel='"+ settings.selected_currency +"']").attr("selected", "selected");
+	if (settings.selected_currency && $('#currency_rate option[rel="'+ settings.selected_currency +'"]').length) {
+		$('#currency_rate option').removeAttr('selected');
+		$('#currency_rate option[rel="'+ settings.selected_currency +'"]').attr('selected', 'selected');
 		$('#amount_to_send_label').text(settings.selected_currency);
 		$('#currency_rate').attr('rel', $('#currency_rate').val());
-		$("#currency_rate").trigger("change");
+		$('#currency_rate').trigger('change');
+		$('#amount_to_send').trigger('change');
+		updateUrlFragment();
+	}
+	else if (!!parseFloat(settings.selected_currency)) {
+		$('#currency_rate').attr('rel', settings.selected_currency);
+	}
+	// pre-select currency from dropdown (either from last use or from URL fragment)
+	if (settings.selected_currency && $('#currency_rate option[rel="'+ settings.selected_currency +'"]').length) {
+		$('#currency_rate option').removeAttr('selected');
+		$('#currency_rate option[rel="'+ settings.selected_currency +'"]').attr('selected', 'selected');
+		$('#amount_to_send_label').text(settings.selected_currency);
+		$('#currency_rate').attr('rel', $('#currency_rate').val());
+		$('#currency_rate').trigger('change');
 	}
 	else if (!!parseFloat(settings.selected_currency)) {
 		$('#currency_rate').attr('rel', settings.selected_currency);
@@ -382,22 +394,55 @@ function drawRates(rates) {
 		else {
 			$('#bb_address').val(decodeURIComponent(params.address).split(';')[0]);
 		}
-		$("#bb_address").trigger("change");
+		$('#bb_address').trigger('change');
 	}
 	if (typeof window.EditableSelect !== 'undefined') {
 		$('#currency_rate').editableSelect({ filter: false, effects: 'slide' }).on('select.editable-select', function (e, li) {
 			$('#currency_rate').val(li.data('value') || ''); // li.val() was rounded for some reason
 			$('#currency_rate').attr('rel', li.data('value') || 0);
 			$('#amount_to_send_label').text(li.attr('rel') || '?');
-			$("#amount_to_send").trigger("change");
-			$("#currency_rate").trigger("change");
+			$('#amount_to_send').trigger('change');
+			$('#currency_rate').trigger('change');
 		});
 		$('#currency_rate').off('keydown');
+		$('#asset_id').editableSelect({ filter: false, effects: 'slide' }).on('select.editable-select', function (e, li) {
+			settings.asset = li.attr('rel') || '';
+			$('#asset_id').val(settings.asset);
+			$('#asset_id').attr('rel', settings.asset);
+			$('#asset_id').trigger('change');
+		});
+		if (!$('#asset_id').val()) {
+			$('#asset_id').val(settings.asset);
+		}
+		$('#asset_id').off('keydown');
+	}
+	else {
+		$('#currency_rate').on('change', function(e) {
+			$('#amount_to_send_label').text(($('#currency_rate option:selected').attr('rel') || '?'));
+			$('#currency_rate').attr('rel', $('#currency_rate').val());
+			updateUrlFragment();
+			updateAmount();
+			parseAdresses($('#bb_address').val());
+		});
 	}
 	$('#currency_rate').on('keyup', function(e) {
 		//$('#currency_rate').editableSelect('hide');
 		$('#currency_rate').attr('rel', e.target.value);
 		$('#amount_to_send_label').text('?');
+		updateUrlFragment();
+		updateAmount();
+		parseAdresses($('#bb_address').val());
+	});
+	$('#asset_id').on('change', function(e) {
+		$('#asset_id').attr('rel', $('#asset_id').val());
+		updateUrlFragment();
+		updateAmount();
+		parseAdresses($('#bb_address').val());
+	});
+	$('#asset_id').on('keyup', function(e) {
+		//$('#asset_id').editableSelect('hide');
+		$('#asset_id').attr('rel', e.target.value);
+		settings.asset = e.target.value;
 		updateUrlFragment();
 		updateAmount();
 		parseAdresses($('#bb_address').val());
@@ -431,7 +476,7 @@ function isValidAddress(str, multi) {
 	return (str === str.toUpperCase() && str.length === 32) ||
 		/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(str) ||
 		/^reddit\/[a-z0-9\-_]{3,20}$/i.test(str) ||
-		/^steem\/[a-z0-9\-_]{3,20}$/i.test(str) ||
+		/^steem\/[a-z0-9\-_.]{3,20}$/i.test(str) ||
 		/^@([a-z\d\-_])+$/i.test(str) ||
 		/^\+\d{9,14}$/.test(str);
 }
@@ -445,7 +490,59 @@ function b64_to_utf8( str ) {
 }
 
 function loadRates(defaults) {
-	// all cryptocompare base currencies
+	// all CoinPaprika base currencies
+	var url = 'https://api.coinpaprika.com/v1/tickers/gbyte-obyte?quotes=BTC,ETH,USD,EUR,PLN,KRW,GBP,CAD,JPY,RUB,TRY,NZD,AUD,CHF,UAH,HKD,SGD,NGN,PHP,MXN,BRL,THB,CLP,CNY,CZK,DKK,HUF,IDR,ILS,INR,MYR,NOK,PKR,SEK,TWD,ZAR,VND,BOB,COP,PEN,ARS,ISK';
+	var cache_key = utf8_to_b64(url);
+	if (typeof window.localStorage !== 'undefined') {
+		// saves selected currency in local storage for longer
+		var options = JSON.parse(localStorage.getItem(cache_key)) || {};
+		$(document).on('change', '#currency_rate, #asset_id', function(e) {
+			options.selected_currency = $('#amount_to_send_label').text();
+			if ($('#asset_id').length) {
+				options.asset =  $('#asset_id').val();
+			}
+			localStorage.setItem(cache_key, JSON.stringify(options));
+		});
+	}
+	window.settings = $.extend({}, defaults, options, defaults);
+	if (!window.settings.price_bytes) {
+		drawRates();
+	}
+	else if (typeof window.sessionStorage !== 'undefined') {
+		// keeps cached in session storage for reloading the page, clears cache on closing the tab
+		var cached_rates = JSON.parse(sessionStorage.getItem(cache_key));
+		if (cached_rates) {
+			drawRates(cached_rates);
+			if (typeof ga === 'function') {
+				ga('send', 'event', 'CoinPaprika', 'cached-rates');
+			}
+		}
+		else {
+			$.get(url, function(response) {
+				var rates = {};
+				$.each(response.quotes, function(key, value) {
+					var new_rate = {};
+					new_rate[key] = value.price;
+					if (key === 'USD' || key === 'EUR' || key === 'BTC' || key === 'ETH') {
+						$.extend( new_rate, rates );
+						rates = new_rate;
+					}
+					else {
+						$.extend( rates, new_rate );
+					}
+				});
+				drawRates(rates);
+				sessionStorage.setItem(cache_key, JSON.stringify(rates));
+				if (typeof ga === 'function') {
+					ga('send', 'event', 'CoinPaprika', 'new-rates');
+				}
+			});
+		}
+	}
+}
+/*
+function loadRates(defaults) {
+	// all CryptoCompare base currencies
 	var url = 'https://min-api.cryptocompare.com/data/price?fsym=GBYTE&tsyms=USD,EUR,GBP,BTC,ETH,STEEM,GOLD,AUD,BRL,BYN,CAD,CHF,CNY,HKD,HUF,INR,IRR,JPY,KRW,MXN,NZD,PHP,PKR,PLN,RON,RUB,SGD,TRY,UAH,VEF,VES&extraParams=' + encodeURIComponent(document.title);
 	var cache_key = utf8_to_b64(url);
 	if (typeof window.localStorage !== 'undefined') {
@@ -467,16 +564,14 @@ function loadRates(defaults) {
 		// keeps cached in session storage for reloading the page, clears cache on closing the tab
 		var cached_rates = JSON.parse(sessionStorage.getItem(cache_key));
 		if (cached_rates) {
-			rates = cached_rates;
-			drawRates(rates);
+			drawRates(cached_rates);
 			if (typeof ga === 'function') {
 				ga('send', 'event', 'CryptoCompare', 'cached-rates');
 			}
 		}
 		else {
 			$.get(url, function(response) {
-				rates = response;
-				drawRates(rates);
+				drawRates(response);
 				sessionStorage.setItem(cache_key, JSON.stringify(response));
 				if (typeof ga === 'function') {
 					ga('send', 'event', 'CryptoCompare', 'new-rates');
@@ -485,3 +580,4 @@ function loadRates(defaults) {
 		}
 	}
 }
+*/

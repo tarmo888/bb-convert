@@ -54,7 +54,13 @@
 						<div class="input-group-prepend d-none d-sm-flex align-text-top">
 							<label class="input-group-text" for="asset_id"><span class="align-self-start">Asset ID</span></label>
 						</div>
-						<input class="form-control" type="text" id="asset_id" placeholder="Asset ID" />
+						<select class="form-control" id="asset_id" rel="">
+							<option value="">-- Select asset or copy-paste asset ID here --</option>
+							<option value="NMuNvOJRO2ZY9L17uKtsa7OYkgsV8LfSBIV9BUoVJPQ=" rel="Future">Future</option>
+							<option value="oF9wmH31QDL/VXppOJ9mHISrvcdJQ1rqU+Jv8GRQH84=" rel="Charm">Charm</option>
+							<option value="pZML61kxjqV2TcMMGr1z3z0jvAkDcOwdGzxoXjsV52Q=" rel="WhiteLittle">WhiteLittle</option>
+							<option value="f2TMkqij/E3qx3ALfVBA8q5ve5xAwimUm92UrEribIE=" rel="TitanCoin">TitanCoin</option>
+						</select>
 					</div>
 				</div>
 				<div class="row justify-content-center">
@@ -103,7 +109,8 @@
 					<h5>Thanks</h5>
 					<div class="row">
 						<div class="col">
-							<div><span class="emoji">🔗</span> Uses <a href="https://min-api.cryptocompare.com/" target="_blank">CryptoCompare API</a> for currency rates.</div>
+							<!-- <div><span class="emoji">🔗</span> Uses <a href="https://min-api.cryptocompare.com/" target="_blank">CryptoCompare API</a> for currency rates.</div> -->
+							<div><span class="emoji">🔗</span> Uses <a href="https://api.coinpaprika.com/" target="_blank">CoinPaprika API</a> for currency rates.</div>
 							<div><span class="emoji">🔗</span> Uses <a href="https://github.com/twbs/bootstrap/tree/v4-dev" target="_blank">Twitter Bootstrap</a> for responsive grid layout and modals.</div>
 							<div><span class="emoji">🔗</span> Uses <a href="https://github.com/jquery/jquery" target="_blank">jQuery</a> to put everything working together.</div>
 							<div><span class="emoji">🔗</span> Uses <a href="https://github.com/jeromeetienne/jquery-qrcode" target="_blank">jQuery.qrcode by jeromeetienne</a> to generate QR codes.</div>
@@ -125,7 +132,7 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js" integrity="sha256-9MzwK2kJKBmsJFdccXoIDDtsbWFh8bjYK/C7UjB1Ay0=" crossorigin="anonymous"></script>
 	<script src="jquery-editable-select/dist/jquery-editable-select.min.js"></script>
 	<script src="launch_uri/launch_uri.js"></script>
-	<script src="script.js?v17"></script>
+	<script src="script.js?v18"></script>
 	<script>
 	$(document).ready(function() {
 		var params = parseParams(window.location.hash);
