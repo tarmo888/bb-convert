@@ -288,7 +288,7 @@ function updateAmount() {
 	}
 	var bb_amount = amounts['native'].toFixed(fixed['native']);
 	var params = parseParams(window.location.hash);
-	var launch_uri = (params.testnet ? 'byteball-tn:' : 'byteball:') + encodeURIComponent(bb_address) +'?amount='+ bb_amount +'&asset='+ (settings.asset != 'base' ? encodeURIComponent(settings.asset) : 'base');
+	var launch_uri = (params.testnet ? 'obyte-tn:' : 'obyte:') + encodeURIComponent(bb_address) +'?amount='+ bb_amount +'&asset='+ (settings.asset != 'base' ? encodeURIComponent(settings.asset) : 'base');
 	if ( typeof $.prototype.qrcode !== 'undefined' && isValidAddress(bb_address) ) {
 		$('#conversion').append('<div class="mt-2"><a id="qr-opener" href="'+ launch_uri +'" data-toggle="modal" data-target="#qr-modal">QR code for mobile wallet</a></div>');
 	}
